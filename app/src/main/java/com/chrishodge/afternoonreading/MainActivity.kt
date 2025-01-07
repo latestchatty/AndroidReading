@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Scaffold
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,10 +29,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.chrishodge.afternoonreading.ui.ChatScreen
 import com.chrishodge.afternoonreading.ui.AccountScreen
-import com.chrishodge.afternoonreading.ui.SettingsScreen
+import com.chrishodge.afternoonreading.ui.ChatScreen
 import com.chrishodge.afternoonreading.ui.NavigationItem
+import com.chrishodge.afternoonreading.ui.SettingsScreen
 import com.chrishodge.afternoonreading.ui.theme.AfternoonReadingTheme
 
 class MainActivity : ComponentActivity() {
@@ -51,7 +51,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 @Composable
 fun TopBar() {
