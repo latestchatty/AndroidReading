@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
 fun TopBar() {
     TopAppBar(
         title = { Text(text = stringResource(R.string.app_name), fontSize = 18.sp) },
-        backgroundColor = colorResource(id = R.color.purple_500),
+        backgroundColor = colorResource(id = R.color.gray_toolbar),
         contentColor = Color.White
     )
 }
@@ -76,7 +76,7 @@ fun BottomNavigationBar(navController: NavController) {
         NavigationItem.Settings
     )
     BottomNavigation(
-        backgroundColor = colorResource(id = R.color.white),
+        backgroundColor = colorResource(id = R.color.gray_toolbar),
         contentColor = Color.White
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -90,7 +90,7 @@ fun BottomNavigationBar(navController: NavController) {
                     )
                 },
                 label = { Text(text = item.title) },
-                selectedContentColor = Color.White,
+                selectedContentColor = Color(0xFFA459D6),
                 unselectedContentColor = Color.White.copy(0.4f),
                 alwaysShowLabel = true,
                 selected = currentRoute == item.route,
@@ -135,7 +135,7 @@ fun MainScreen() {
                 Navigation(navController = navController)
             }
         },
-        backgroundColor = colorResource(R.color.purple_500) // Set background color to avoid the white flashing when you switch between screens
+        backgroundColor = colorResource(R.color.black) // Set background color to avoid the white flashing when you switch between screens
     )
 }
 

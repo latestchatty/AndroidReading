@@ -20,7 +20,7 @@ fun ChatScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.purple_200))
+            .background(colorResource(id = R.color.black))
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
@@ -39,7 +39,7 @@ fun AccountScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.purple_200))
+            .background(colorResource(id = R.color.black))
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
@@ -58,7 +58,7 @@ fun SettingsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.purple_200))
+            .background(colorResource(id = R.color.black))
             .wrapContentSize(Alignment.Center)
     ) {
         Text(
