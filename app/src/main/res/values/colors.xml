@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="accent">#FFA459D6</color>
     <color name="gray_toolbar">#FF2A2A2A</color>
     <color name="toolbar_item_highlight">#FFA459D6</color>
     <color name="purple_100">#FF673AB7</color>

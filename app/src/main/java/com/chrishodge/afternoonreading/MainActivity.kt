@@ -89,7 +89,7 @@ fun BottomNavigationBar(navController: NavController) {
                     )
                 },
                 label = { Text(text = item.title) },
-                selectedContentColor = Color(0xFFA459D6),
+                selectedContentColor = colorResource(R.color.accent),
                 unselectedContentColor = Color.White.copy(0.4f),
                 alwaysShowLabel = true,
                 selected = currentRoute == item.route,
