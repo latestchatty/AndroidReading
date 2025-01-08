@@ -1,21 +1,12 @@
 package com.chrishodge.afternoonreading.ui
 
 //noinspection UsingMaterialAndMaterial3Libraries
-import android.annotation.SuppressLint
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenuItem
@@ -32,13 +23,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.chrishodge.afternoonreading.R
+import com.chrishodge.afternoonreading.ThreadsClient
+import com.chrishodge.afternoonreading.ThreadsScreen
+import com.chrishodge.afternoonreading.ThreadsViewModel
 
+/*
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun AllThreads (channels: List<Channel>){
+fun AllThreads (channels: List<Threads>){
     Scaffold() {
         LazyColumn(
             modifier = Modifier
@@ -71,7 +65,7 @@ fun AllThreads (channels: List<Channel>){
                         Column {
                             Row(modifier = Modifier.padding(8.dp)) {
                                 Text(
-                                    text = channel.author,
+                                    text = "Author",
                                     fontWeight = FontWeight.Bold,
                                     color = colorResource(id = R.color.orange),
                                     modifier = Modifier.weight(1f),
@@ -91,7 +85,7 @@ fun AllThreads (channels: List<Channel>){
                             }
                             Row(modifier = Modifier.padding(8.dp)) {
                                 Text(
-                                    text = channel.content,
+                                    text = channel.name,
                                     fontWeight = FontWeight.Normal,
                                     color = Color.White,
                                     modifier = Modifier.weight(1f),
@@ -102,7 +96,7 @@ fun AllThreads (channels: List<Channel>){
                             }
                             Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = channel.count.toString() + " Replies",
+                                    text = 47.toString() + " Replies",
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Gray.copy(0.75f),
                                     modifier = Modifier.weight(1f).padding(vertical = 8.dp),
@@ -122,15 +116,21 @@ fun AllThreads (channels: List<Channel>){
         }
     }
 }
+*/
 
 @Composable
 fun ChatScreen() {
+
+    val threadsClient = ThreadsClient("")
+    val viewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/81835925105020928/threads/active")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(id = R.color.black))
             .wrapContentSize(Alignment.Center)
     ) {
+        ThreadsScreen(viewModel)
         /*
         Text(
             text = "Home View",
@@ -141,7 +141,7 @@ fun ChatScreen() {
             fontSize = 25.sp
         )
         */
-        AllThreads(channelList)
+        // AllThreads(channelList)
     }
 }
 
