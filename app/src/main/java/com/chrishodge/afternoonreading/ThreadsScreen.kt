@@ -18,6 +18,7 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -72,8 +73,11 @@ fun ThreadsScreen(viewModel: ThreadsViewModel) {
                 title = { Text("Chat") },
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
-                        Text("Refresh")
-
+                        Icon(
+                            Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
