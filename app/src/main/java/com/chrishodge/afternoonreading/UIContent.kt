@@ -124,7 +124,7 @@ fun ChatScreen() {
     val apiKey = BuildConfig.API_KEY
     println("API Key: $apiKey")
 
-    val threadsClient = ThreadsClient("")
+    val threadsClient = ThreadsClient("$apiKey")
     val viewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/81835925105020928/threads/active")
 
     Column(

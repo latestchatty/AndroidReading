@@ -1,3 +1,6 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+val apikey: String = gradleLocalProperties(rootDir, providers).getProperty("api.key")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -21,7 +24,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "API_KEY", "\"${System.getenv("api.key")}\"")
+            buildConfigField("String", "API_KEY", "\"$apikey\"")
         }
         release {
             isMinifyEnabled = false
@@ -29,7 +32,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_KEY", "\"${System.getenv("api.key")}\"")
+            buildConfigField("String", "API_KEY", "\"$apikey\"")
         }
     }
     compileOptions {
