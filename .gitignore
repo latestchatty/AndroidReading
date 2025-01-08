@@ -1,6 +1,5 @@
 # Misc
 .DS_Store
-keys.conf
 
 # Gradle files
 .gradle/
