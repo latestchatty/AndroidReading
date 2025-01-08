@@ -134,7 +134,7 @@ fun MainScreen() {
                 Navigation(navController = navController)
             }
         },
-        backgroundColor = colorResource(R.color.black) // Set background color to avoid the white flashing when you switch between screens
+        backgroundColor = MaterialTheme.colors.background // Set background color to avoid the white flashing when you switch between screens
     )
 }
 

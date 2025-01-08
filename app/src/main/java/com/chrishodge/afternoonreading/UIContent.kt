@@ -1,10 +1,12 @@
 package com.chrishodge.afternoonreading.ui
 
 //noinspection UsingMaterialAndMaterial3Libraries
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.chrishodge.afternoonreading.BuildConfig
 import com.chrishodge.afternoonreading.R
+import com.chrishodge.afternoonreading.SharedForm
 import com.chrishodge.afternoonreading.ThreadsClient
 import com.chrishodge.afternoonreading.ThreadsScreen
 import com.chrishodge.afternoonreading.ThreadsViewModel
@@ -124,17 +127,6 @@ fun ChatScreen() {
             .wrapContentSize(Alignment.Center)
     ) {
         ThreadsScreen(viewModel)
-        /*
-        Text(
-            text = "Home View",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
-        */
-        // AllThreads(channelList)
     }
 }
 
@@ -162,16 +154,12 @@ fun SettingsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.black))
+            .background(MaterialTheme.colorScheme.surface)
             .wrapContentSize(Alignment.Center)
     ) {
-        Text(
-            text = "Settings",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
-        )
+        SharedForm { formState ->
+            // Handle form submission
+            Log.d("Form", "Guild ID: ${formState.guildId}, Forum ID: ${formState.forumId}")
+        }
     }
 }
