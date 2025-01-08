@@ -7,20 +7,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.DropdownMenu
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -67,6 +73,7 @@ fun ThreadsScreen(viewModel: ThreadsViewModel) {
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
                         Text("Refresh")
+
                     }
                 }
             )
@@ -162,16 +169,24 @@ fun ThreadCard(thread: Thread) {
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = "Messages: ${thread.messageCount}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            Text(
-                text = "Members: ${thread.memberCount}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-
+            Row {
+                Column {
+                    Text(
+                        text = "${thread.messageCount} Replies",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = "${thread.memberCount} Contributors",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Spacer(Modifier.weight(1f).fillMaxHeight())
+                Row {
+                    Box {
+                        MinimalDropdownMenu()
+                    }
+                }
+            }
             /*
             if (!thread.appliedTags.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -202,5 +217,30 @@ private fun formatDate(timestamp: String): String {
         return ago.toString()
     } catch (e: Exception) {
         timestamp
+    }
+}
+
+@Composable
+fun MinimalDropdownMenu() {
+    var expanded by remember { mutableStateOf(false) }
+    androidx.compose.material.IconButton(onClick = { expanded = !expanded }) {
+        Icon(
+            Icons.Default.MoreVert,
+            contentDescription = "More options",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false }
+    ) {
+        DropdownMenuItem(
+            text = { Text("Hide Thread") },
+            onClick = { /* Do something... */ }
+        )
+        DropdownMenuItem(
+            text = { Text("Report") },
+            onClick = { /* Do something... */ }
+        )
     }
 }
