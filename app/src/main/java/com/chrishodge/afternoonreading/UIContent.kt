@@ -24,6 +24,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import com.chrishodge.afternoonreading.BuildConfig
 import com.chrishodge.afternoonreading.R
 import com.chrishodge.afternoonreading.ThreadsClient
 import com.chrishodge.afternoonreading.ThreadsScreen
@@ -120,6 +121,8 @@ fun AllThreads (channels: List<Threads>){
 
 @Composable
 fun ChatScreen() {
+    val apiKey = BuildConfig.API_KEY
+    println("API Key: $apiKey")
 
     val threadsClient = ThreadsClient("")
     val viewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/81835925105020928/threads/active")

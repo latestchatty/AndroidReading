@@ -20,12 +20,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_KEY", "\"${System.getenv("api.key")}\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "API_KEY", "\"${System.getenv("api.key")}\"")
         }
     }
     compileOptions {
@@ -37,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
