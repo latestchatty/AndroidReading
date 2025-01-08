@@ -4,6 +4,7 @@ package com.chrishodge.afternoonreading.ui
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -101,7 +102,7 @@ fun AllThreads (channels: List<Channel>){
                             }
                             Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = "93 Replies",
+                                    text = channel.count.toString() + " Replies",
                                     fontWeight = FontWeight.Normal,
                                     color = Color.Gray.copy(0.75f),
                                     modifier = Modifier.weight(1f).padding(vertical = 8.dp),
@@ -109,7 +110,9 @@ fun AllThreads (channels: List<Channel>){
                                     fontSize = 20.sp,
                                     maxLines = 1,
                                 )
-                                MinimalDropdownMenu()
+                                Box {
+                                    MinimalDropdownMenu()
+                                }
                             }
                         }
                     }
