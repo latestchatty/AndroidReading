@@ -66,7 +66,6 @@ fun ThreadsScreen(viewModel: ThreadsViewModel) {
         refreshing = false
     }
     val refreshingState = rememberPullRefreshState(refreshing, ::refresh)
-
     Scaffold(
         topBar = {
             TopAppBar(

@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
 fun TopBar() {
     TopAppBar(
         title = { Text(text = stringResource(R.string.app_name), fontSize = 18.sp) },
-        backgroundColor = colorResource(id = R.color.gray_toolbar),
+        backgroundColor = MaterialTheme.colors.secondary,
         contentColor = Color.White
     )
 }
