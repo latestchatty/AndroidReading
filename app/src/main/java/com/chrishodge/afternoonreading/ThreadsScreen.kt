@@ -190,6 +190,17 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            thread.firstPost?.let {
+                Text(
+                    text = it.content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Row {
                 Column {
                     Text(
