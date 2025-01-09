@@ -160,12 +160,12 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                     )
                 }
                 if (thread.author?.isBlank() == true) {
-                    Box(modifier = Modifier.background(colorResource(id = R.color.orange))) {
+                    Box(modifier = Modifier.background(colorResource(id = R.color.redacted_orange))) {
                         Text(
                             text = "RedactedAuthor",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(id = R.color.orange),
+                            color = colorResource(id = R.color.redacted_orange),
                             textAlign = TextAlign.Left,
                             maxLines = 1
                         )
