@@ -3,6 +3,8 @@ package com.chrishodge.afternoonreading
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -35,6 +37,12 @@ import com.chrishodge.afternoonreading.ui.ChatScreen
 import com.chrishodge.afternoonreading.ui.NavigationItem
 import com.chrishodge.afternoonreading.ui.SettingsScreen
 import com.chrishodge.afternoonreading.ui.theme.AfternoonReadingTheme
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.navigation.NavBackStackEntry
 
 class MainActivity : ComponentActivity() {
     private lateinit var preferencesManager: PreferencesManager
@@ -150,13 +158,20 @@ fun MainScreen(viewModel: MainViewModel) {
 @Composable
 fun Navigation(navController: NavHostController, viewModel: MainViewModel) {
     NavHost(navController, startDestination = NavigationItem.Chat.route) {
-        composable(NavigationItem.Chat.route) {
+        composable(NavigationItem.Chat.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() }
+        ) {
             ChatScreen(viewModel = viewModel)
         }
-        composable(NavigationItem.Account.route) {
+        composable(NavigationItem.Account.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() }) {
             AccountScreen(viewModel = viewModel)
         }
-        composable(NavigationItem.Settings.route) {
+        composable(NavigationItem.Settings.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() }) {
             SettingsScreen(viewModel = viewModel)
         }
     }
