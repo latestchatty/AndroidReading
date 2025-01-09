@@ -1,5 +1,7 @@
 package com.chrishodge.afternoonreading
 
+import android.app.Activity
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -42,6 +44,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 
 class MainActivity : ComponentActivity() {
@@ -50,6 +54,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         preferencesManager = PreferencesManager(this)
         viewModel = ViewModelProvider(
             this,
