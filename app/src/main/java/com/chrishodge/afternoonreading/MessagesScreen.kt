@@ -27,10 +27,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,7 +131,11 @@ fun MessageCard(message: Message) {
         ) {
             Text(
                 text = message.author.username,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = colorResource(id = R.color.orange),
+                textAlign = TextAlign.Left,
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -151,7 +157,7 @@ fun MessageCard(message: Message) {
 fun AttachmentsList(attachments: List<Attachment>) {
     Column {
         attachments.forEach { attachment ->
-            if (attachment.contentType.startsWith("image/")) {
+            if (attachment.contentType?.startsWith("image/") == true) {
                 AsyncImage(
                     model = attachment.url,
                     contentDescription = attachment.filename,

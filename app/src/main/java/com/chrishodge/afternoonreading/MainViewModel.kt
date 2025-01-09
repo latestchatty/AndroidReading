@@ -21,6 +21,9 @@ class MainViewModel(
     private val _guildId = mutableStateOf(preferencesManager.getString("guild_id"))
     val guildId: State<String> = _guildId
 
+    private val _forumId = mutableStateOf(preferencesManager.getString("forum_id"))
+    val forumId: State<String> = _forumId
+
     private val _channelId = mutableStateOf("0")
     val channelId: State<String> = _channelId
 
@@ -33,7 +36,7 @@ class MainViewModel(
             try {
                 // Your thread loading logic here
                 // _threadsData.value = result
-                println("NOW FUCKING WHAT")
+                println("todo...")
             } finally {
                 _isLoading.value = false
             }
@@ -70,6 +73,7 @@ class MainViewModel(
     fun navigateToThreadsScreen() {
         println("navigateToThreadsScreen")
         _channelId.value = "0"
+        _channelName.value = ""
     }
 }
 

@@ -21,7 +21,7 @@ data class Thread(
     val flags: Int,
     @SerialName("guild_id")
     val guildId: String,
-    val name: String,
+    var name: String,
     @SerialName("parent_id")
     val parentId: String,
     @SerialName("rate_limit_per_user")
@@ -44,7 +44,10 @@ data class Thread(
     @SerialName("applied_tags")
     val appliedTags: List<String>? = null,
     @SerialName("last_pin_timestamp")
-    val lastPinTimestamp: String? = null
+    val lastPinTimestamp: String? = null,
+
+    var author: String? = "",
+    var firstPost: Message? = null
 )
 
 @Serializable

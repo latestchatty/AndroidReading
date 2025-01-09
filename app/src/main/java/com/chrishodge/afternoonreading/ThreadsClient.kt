@@ -20,6 +20,30 @@ class ThreadsClient(private val authToken: String) {
         }
     }
 
+    suspend fun getMessage(url: String): Message {
+        return try {
+            val response = client.get(url) {
+                headers {
+                    append(HttpHeaders.Authorization, "Bot $authToken")
+                }
+            }
+
+            // Print raw response for debugging
+            val responseText = response.body<String>()
+            println("Raw response: $responseText")
+
+            // Then parse it
+            client.get(url) {
+                headers {
+                    append(HttpHeaders.Authorization, "Bot $authToken")
+                }
+            }.body()
+        } catch (e: Exception) {
+            println("Error occurred during getMessage: ${e.message}")
+            throw RuntimeException("Failed to fetch message: ${e.message}", e)
+        }
+    }
+
     suspend fun getThreads(url: String): ThreadsResponse {
         return try {
             client.get(url) {

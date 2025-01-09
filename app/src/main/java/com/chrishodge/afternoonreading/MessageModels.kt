@@ -10,24 +10,26 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Message(
+    // Required fields
     val id: String,
     val type: Int,
     val content: String,
     val channel_id: String,
     val author: Author,
     val timestamp: String,
-    val edited_timestamp: String?,
-    val mentions: List<Author>,
-    val mention_roles: List<String>,
-    val attachments: List<Attachment>,
-    val embeds: List<Embed>,
-    val reactions: List<Reaction>? = null,
     val pinned: Boolean,
     val mention_everyone: Boolean,
     val tts: Boolean,
-    val flags: Int,
-    // val components: List<Any>,
-    val position: Int? = 1,
+
+    // Optional fields with default values
+    val edited_timestamp: String? = null,
+    val mentions: List<Author> = emptyList(),
+    val mention_roles: List<String> = emptyList(),
+    val attachments: List<Attachment> = emptyList(),
+    val embeds: List<Embed> = emptyList(),
+    val reactions: List<Reaction>? = null,
+    val flags: Int = 0,
+    val position: Int? = null,
     val message_reference: MessageReference? = null,
     val referenced_message: Message? = null
 )
@@ -36,21 +38,21 @@ data class Message(
 data class Author(
     val id: String,
     val username: String,
-    val avatar: String?,
+    val avatar: String? = null,
     val discriminator: String,
-    val public_flags: Int,
-    val flags: Int,
-    val banner: String?,
-    val accent_color: Int?,
+    val public_flags: Int = 0,
+    val flags: Int = 0,
+    val banner: String? = null,
+    val accent_color: Int? = null,
     @SerialName("global_name")
-    val globalName: String?,
-    @SerialName("avatar_decoration_data")
-    val avatarDecorationData: AvatarDecorationData?,
+    val globalName: String? = null,
+    // @SerialName("avatar_decoration_data")
+    // val avatarDecorationData: AvatarDecorationData? = null,
     @SerialName("banner_color")
-    val bannerColor: String?,
-    val clan: String?,
+    val bannerColor: String? = null,
+    val clan: String? = null,
     @SerialName("primary_guild")
-    val primaryGuild: String?
+    val primaryGuild: String? = null
 )
 
 @Serializable
@@ -70,30 +72,30 @@ data class Attachment(
     val url: String,
     @SerialName("proxy_url")
     val proxyUrl: String,
-    val width: Int,
-    val height: Int,
+    val width: Int? = null,
+    val height: Int? = null,
     @SerialName("content_type")
-    val contentType: String,
+    val contentType: String? = null,
     @SerialName("content_scan_version")
-    val contentScanVersion: Int,
-    val placeholder: String,
+    val contentScanVersion: Int? = null,
+    val placeholder: String? = null,
     @SerialName("placeholder_version")
-    val placeholderVersion: Int
+    val placeholderVersion: Int? = null
 )
 
 @Serializable
 data class Embed(
     val type: String,
-    val url: String,
-    val title: String,
-    val description: String,
-    val color: Int,
+    val url: String? = null,
+    val title: String? = null,
+    val description: String? = null,
+    val color: Int? = null,
     @SerialName("reference_id")
     val referenceId: String? = null,
     val provider: Provider? = null,
     val thumbnail: Thumbnail? = null,
     @SerialName("content_scan_version")
-    val contentScanVersion: Int
+    val contentScanVersion: Int? = null
 )
 
 @Serializable

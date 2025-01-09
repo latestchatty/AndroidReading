@@ -47,7 +47,9 @@ fun ChatScreen(viewModel: MainViewModel) {
 
     val threadsClient = ThreadsClient("$apiKey")
     val guildId = viewModel.guildId.value
-    val threadViewModel = rememberThreadsViewModel(threadsClient, guildId)
+    val channelId = viewModel.channelId.value
+    val forumId = viewModel.forumId.value
+    val threadViewModel = rememberThreadsViewModel(threadsClient, guildId, forumId)
     val messageViewModel = viewModel.messageViewModel.collectAsState().value
     val showMessageScreen = viewModel.showMessageScreen.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
@@ -158,12 +160,14 @@ fun SettingsScreen(viewModel: MainViewModel) {
 @Composable
 private fun rememberThreadsViewModel(
     threadsClient: ThreadsClient,
-    guildId: String
+    guildId: String,
+    channelId: String
 ): ThreadsViewModel {
     return remember(guildId) {
         ThreadsViewModel(
             threadsClient,
-            "https://canary.discord.com/api/v9/guilds/$guildId/threads/active"
+            "https://canary.discord.com/api/v9/guilds/$guildId/threads/active",
+            channelId
         )
     }
 }

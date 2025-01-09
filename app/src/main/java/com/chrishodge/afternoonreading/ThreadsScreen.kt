@@ -149,14 +149,28 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 .fillMaxWidth()
         ) {
             Row( modifier = Modifier.padding(bottom = 8.dp)) {
-                Text(
-                    text = "Author",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = colorResource(id = R.color.orange),
-                    textAlign = TextAlign.Left,
-                    maxLines = 1
-                )
+                thread.author?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = colorResource(id = R.color.orange),
+                        textAlign = TextAlign.Left,
+                        maxLines = 1
+                    )
+                }
+                if (thread.author?.isBlank() == true) {
+                    Box(modifier = Modifier.background(colorResource(id = R.color.orange))) {
+                        Text(
+                            text = "RedactedAuthor",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.orange),
+                            textAlign = TextAlign.Left,
+                            maxLines = 1
+                        )
+                    }
+                }
                 Spacer(Modifier.weight(1f).fillMaxHeight())
                 Text(
                     text = "${thread.threadMetadata.createTimestamp?.let { formatDate(it) }}",
