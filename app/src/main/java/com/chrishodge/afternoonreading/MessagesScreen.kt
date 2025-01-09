@@ -67,6 +67,8 @@ fun MessageScreen(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
+            Spacer(modifier = Modifier.height(40.dp))
+
             OutlinedTextField(
                 value = channelId,
                 onValueChange = { channelId = it },
