@@ -57,7 +57,7 @@ import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ThreadsScreen(viewModel: ThreadsViewModel) {
+fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
@@ -96,7 +96,7 @@ fun ThreadsScreen(viewModel: ThreadsViewModel) {
                     }
                 }
                 is ThreadsUiState.Success -> {
-                    ThreadsList(threads = state.threads)
+                    ThreadsList(threads = state.threads, mainViewModel)
                     PullRefreshIndicator(refreshing, refreshingState, Modifier.align(Alignment.TopCenter))
                 }
                 is ThreadsUiState.Error -> {
@@ -116,22 +116,25 @@ fun ThreadsScreen(viewModel: ThreadsViewModel) {
 }
 
 @Composable
-fun ThreadsList(threads: List<Thread>) {
+fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(threads) { thread ->
-            ThreadCard(thread = thread)
+            ThreadCard(thread = thread, mainViewModel)
         }
     }
 }
 
 @Composable
-fun ThreadCard(thread: Thread) {
+fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
     Card(
-        onClick = {},
+        onClick = {
+            mainViewModel.setChannelId(thread.id)
+            println("${thread.id}")
+        },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.25f),
         ),

@@ -41,14 +41,13 @@ fun MessageScreen(
     var messageId by remember { mutableStateOf("") }
 
     val messageViewModel = mainViewModel.messageViewModel.collectAsState().value
-    var showMessageScreen = mainViewModel.showMessageScreen.collectAsState().value
 
     Scaffold(topBar = {
         TopAppBar(
             title = { Text(text = "Thread") },
             navigationIcon = {
                 IconButton(onClick = {
-                    showMessageScreen = false
+                    mainViewModel.setChannelId("0")
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,

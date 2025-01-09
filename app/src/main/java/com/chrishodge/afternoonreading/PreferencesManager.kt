@@ -1,12 +1,6 @@
 package com.chrishodge.afternoonreading
 
 import android.content.Context
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class PreferencesManager(context: Context) {
     private val sharedPreferences = context.getSharedPreferences(
@@ -38,51 +32,5 @@ class PreferencesManager(context: Context) {
 
     fun getBoolean(key: String, defaultValue: Boolean = false): Boolean {
         return sharedPreferences.getBoolean(key, defaultValue)
-    }
-}
-
-class MainViewModel(
-    private val preferencesManager: PreferencesManager
-) : ViewModel() {
-
-    private val _guildId = mutableStateOf(preferencesManager.getString("guild_id"))
-    val guildId: State<String> = _guildId
-
-    private val _channelId = MutableStateFlow("0")
-    val channelId = _channelId.asStateFlow()
-
-    fun saveGuildId(id: String) {
-        preferencesManager.saveString("guild_id", id)
-        _guildId.value = id
-    }
-
-    private val _showMessageScreen = MutableStateFlow(false)
-    val showMessageScreen = _showMessageScreen.asStateFlow()
-
-    fun toggleMessageScreen() {
-        _showMessageScreen.value = !_showMessageScreen.value
-        if (_showMessageScreen.value && _messageViewModel.value == null) {
-            createMessageViewModel()
-        }
-    }
-
-    private val _messageViewModel = MutableStateFlow<MessageViewModel?>(null)
-    val messageViewModel = _messageViewModel.asStateFlow()
-
-    fun createMessageViewModel() {
-        _messageViewModel.value = MessageViewModel()
-    }
-}
-
-// Create a ViewModelFactory
-class MainViewModelFactory(
-    private val preferencesManager: PreferencesManager
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(preferencesManager) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

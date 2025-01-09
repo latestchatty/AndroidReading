@@ -48,9 +48,9 @@ fun ChatScreen(viewModel: MainViewModel) {
                 .background(MaterialTheme.colorScheme.background)
                 .wrapContentSize(Alignment.Center)
         ) {
-            ThreadsScreen(threadViewModel)
+            ThreadsScreen(viewModel = threadViewModel, mainViewModel = viewModel)
         }
-        if (showMessageScreen) {
+        if (viewModel.channelId.value != "0") {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
