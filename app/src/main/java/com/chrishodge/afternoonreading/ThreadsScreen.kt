@@ -1,6 +1,7 @@
 package com.chrishodge.afternoonreading
 
 import android.text.format.DateUtils
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -234,14 +235,17 @@ fun MinimalDropdownMenu() {
     }
     DropdownMenu(
         expanded = expanded,
-        onDismissRequest = { expanded = false }
+        onDismissRequest = { expanded = false },
+        modifier = Modifier.background(
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         DropdownMenuItem(
-            text = { Text("Hide Thread") },
+            text = { Text("Hide Thread", color = MaterialTheme.colorScheme.primary) },
             onClick = { /* Do something... */ }
         )
         DropdownMenuItem(
-            text = { Text("Report") },
+            text = { Text("Report", color = MaterialTheme.colorScheme.primary) },
             onClick = { /* Do something... */ }
         )
     }
