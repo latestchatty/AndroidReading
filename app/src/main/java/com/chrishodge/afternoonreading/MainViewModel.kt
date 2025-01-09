@@ -24,6 +24,9 @@ class MainViewModel(
     private val _channelId = mutableStateOf("0")
     val channelId: State<String> = _channelId
 
+    private val _channelName = mutableStateOf("")
+    val channelName: State<String> = _channelName
+
     fun loadThreads(guildId: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -37,8 +40,9 @@ class MainViewModel(
         }
     }
 
-    fun setChannelId(channelId: String) {
+    fun setChannel(channelId: String, name: String) {
         _channelId.value = channelId
+        _channelName.value = name
     }
 
     fun saveGuildId(id: String) {
@@ -58,7 +62,6 @@ class MainViewModel(
 
     private val _messageViewModel = MutableStateFlow<MessageViewModel?>(null)
     val messageViewModel = _messageViewModel.asStateFlow()
-
 
     fun createMessageViewModel() {
         _messageViewModel.value = MessageViewModel()

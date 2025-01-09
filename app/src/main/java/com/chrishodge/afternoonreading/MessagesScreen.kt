@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
@@ -41,13 +42,17 @@ fun MessageScreen(
     var messageId by remember { mutableStateOf("") }
 
     val messageViewModel = mainViewModel.messageViewModel.collectAsState().value
+    val channelName = mainViewModel.channelName.value
 
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text(text = "Thread") },
+            title = { Text(text = "$channelName",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium)},
             navigationIcon = {
                 IconButton(onClick = {
-                    mainViewModel.setChannelId("0")
+                    mainViewModel.setChannel("0", "")
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
