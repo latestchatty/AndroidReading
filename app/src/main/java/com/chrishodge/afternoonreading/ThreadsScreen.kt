@@ -57,7 +57,7 @@ import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel) {
+fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsState()
     val refreshScope = rememberCoroutineScope()
     var refreshing by remember { mutableStateOf(false) }
@@ -68,6 +68,7 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel) {
     }
     val refreshingState = rememberPullRefreshState(refreshing, ::refresh)
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("Chat") },

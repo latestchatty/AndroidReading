@@ -2,6 +2,8 @@ package com.chrishodge.afternoonreading.ui
 
 //noinspection UsingMaterialAndMaterial3Libraries
 import android.util.Log
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,7 +37,7 @@ fun ChatScreen(viewModel: MainViewModel) {
 
     val threadsClient = ThreadsClient("$apiKey")
     val guildId = viewModel.guildId.value
-    val threadViewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/$guildId/threads/active")
+    val threadViewModel = rememberThreadsViewModel(threadsClient, guildId)
     val messageViewModel = viewModel.messageViewModel.collectAsState().value
     val showMessageScreen = viewModel.showMessageScreen.collectAsState().value
 
@@ -41,24 +45,25 @@ fun ChatScreen(viewModel: MainViewModel) {
         viewModel.createMessageViewModel()
     }
 
-    Box {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .wrapContentSize(Alignment.Center)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+
+        // Keep ThreadsScreen always mounted but control visibility
+        ThreadsScreen(
+            viewModel = threadViewModel,
+            mainViewModel = viewModel,
+            modifier = Modifier.alpha(if (showMessageScreen) 0f else 1f)
+        )
+
+        androidx.compose.animation.AnimatedVisibility(
+            visible = viewModel.channelId.value != "0",
+            enter = slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }),
+            exit = slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth })
         ) {
-            ThreadsScreen(viewModel = threadViewModel, mainViewModel = viewModel)
-        }
-        if (viewModel.channelId.value != "0") {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                MessageScreen(mainViewModel = viewModel)
-            }
+            MessageScreen(mainViewModel = viewModel)
         }
     }
 }
@@ -94,5 +99,19 @@ fun SettingsScreen(viewModel: MainViewModel) {
             // Handle form submission
             Log.d("Form", "Guild ID: ${formState.guildId}, Forum ID: ${formState.forumId}")
         }
+    }
+}
+
+// Create a remember helper for ThreadsViewModel
+@Composable
+private fun rememberThreadsViewModel(
+    threadsClient: ThreadsClient,
+    guildId: String
+): ThreadsViewModel {
+    return remember(guildId) {
+        ThreadsViewModel(
+            threadsClient,
+            "https://canary.discord.com/api/v9/guilds/$guildId/threads/active"
+        )
     }
 }
