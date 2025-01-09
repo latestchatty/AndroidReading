@@ -71,7 +71,6 @@ fun SettingsScreen(viewModel: MainViewModel) {
         SharedForm { formState ->
             // Handle form submission
             Log.d("Form", "Guild ID: ${formState.guildId}, Forum ID: ${formState.forumId}")
-
         }
     }
 }

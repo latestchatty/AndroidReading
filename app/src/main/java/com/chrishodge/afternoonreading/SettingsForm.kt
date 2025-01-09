@@ -25,8 +25,9 @@ import kotlinx.coroutines.flow.update
 
 // FormState.kt
 data class FormState(
-    val guildId: String = "",
-    val forumId: String = "",
+    val guildId: String = "1250110786676981872",
+    val forumId: String = "1317234644953071696",
+    var nickname: String = "",
     val isValid: Boolean = false
 )
 
@@ -34,7 +35,8 @@ data class FormState(
 class FormViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
     private val _formState = MutableStateFlow(FormState(
         guildId = preferencesManager.getString("guild_id"),
-        forumId = preferencesManager.getString("forum_id")
+        forumId = preferencesManager.getString("forum_id"),
+        nickname = preferencesManager.getString("nickname")
     ))
     val formState = _formState.asStateFlow()
 
@@ -56,6 +58,16 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
             )
         }
         preferencesManager.saveString("forum_id", forumId)
+    }
+
+    fun updateNickname(nickname: String) {
+        _formState.update { currentState ->
+            currentState.copy(
+                nickname = nickname,
+                isValid = validateForm(currentState.nickname, nickname)
+            )
+        }
+        preferencesManager.saveString("nickname", nickname)
     }
 
     private fun validateForm(guildId: String, forumId: String): Boolean {
@@ -106,6 +118,14 @@ fun SharedForm(
             value = formState.forumId,
             onValueChange = { viewModel.updateForumId(it) },
             label = { Text("Forum ID") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = formState.nickname,
+            onValueChange = { viewModel.updateNickname(it) },
+            label = { Text("Username") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
