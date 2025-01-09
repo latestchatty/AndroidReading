@@ -3,12 +3,15 @@ package com.chrishodge.afternoonreading.ui
 //noinspection UsingMaterialAndMaterial3Libraries
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.chrishodge.afternoonreading.BuildConfig
 import com.chrishodge.afternoonreading.MainViewModel
+import com.chrishodge.afternoonreading.MessageScreen
 import com.chrishodge.afternoonreading.SharedForm
 import com.chrishodge.afternoonreading.ThreadsClient
 import com.chrishodge.afternoonreading.ThreadsScreen
@@ -29,15 +33,33 @@ fun ChatScreen(viewModel: MainViewModel) {
 
     val threadsClient = ThreadsClient("$apiKey")
     val guildId = viewModel.guildId.value
-    val viewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/$guildId/threads/active")
+    val threadViewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/$guildId/threads/active")
+    val messageViewModel = viewModel.messageViewModel.collectAsState().value
+    val showMessageScreen = viewModel.showMessageScreen.collectAsState().value
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .wrapContentSize(Alignment.Center)
-    ) {
-        ThreadsScreen(viewModel)
+    LaunchedEffect(Unit) {
+        viewModel.createMessageViewModel()
+    }
+
+    Box {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .wrapContentSize(Alignment.Center)
+        ) {
+            ThreadsScreen(threadViewModel)
+        }
+        if (showMessageScreen) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                MessageScreen(mainViewModel = viewModel)
+            }
+        }
     }
 }
 

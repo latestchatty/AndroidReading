@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,6 +78,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
     implementation("io.ktor:ktor-client-auth:2.3.7")
+    implementation("io.ktor:ktor-client-android:2.3.7")
 
     implementation("androidx.compose.runtime:runtime:1.5.4")
     implementation("androidx.compose.material3:material3:1.1.2")
@@ -85,6 +87,12 @@ dependencies {
 
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation ("androidx.compose.runtime:runtime-livedata:1.5.0")
+    
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("androidx.compose.material3:material3:1.1.2")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     // For Android ViewModel and LiveData
     //implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
