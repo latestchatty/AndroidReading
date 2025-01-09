@@ -16,107 +16,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.chrishodge.afternoonreading.BuildConfig
+import com.chrishodge.afternoonreading.MainViewModel
 import com.chrishodge.afternoonreading.SharedForm
 import com.chrishodge.afternoonreading.ThreadsClient
 import com.chrishodge.afternoonreading.ThreadsScreen
 import com.chrishodge.afternoonreading.ThreadsViewModel
 
-/*
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun AllThreads (channels: List<Threads>){
-    Scaffold() {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colorResource(id = R.color.black))
-                .wrapContentSize(Alignment.TopStart)
-        ) {
-            /*
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(vertical = 25.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "\uD83C\uDF3F  Plants in Cosmetics",
-                        style = MaterialTheme.typography.h1
-                    )
-                }
-            }
-            */
-            items(channels){ channel ->
-                Column {
-                    Card(
-                        border = BorderStroke(1.dp,Color.Gray.copy(0.1f)),
-                        modifier = Modifier.padding(8.dp),
-                        backgroundColor = Color.Gray.copy(0.1f)) {
-                        Column {
-                            Row(modifier = Modifier.padding(8.dp)) {
-                                Text(
-                                    text = "Author",
-                                    fontWeight = FontWeight.Bold,
-                                    color = colorResource(id = R.color.orange),
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.Left,
-                                    fontSize = 20.sp,
-                                    maxLines = 1
-                                )
-                                Text(
-                                    text = "4 days ago",
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Gray.copy(0.75f),
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.Right,
-                                    fontSize = 20.sp,
-                                    maxLines = 1
-                                )
-                            }
-                            Row(modifier = Modifier.padding(8.dp)) {
-                                Text(
-                                    text = channel.name,
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.White,
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.Left,
-                                    fontSize = 22.sp,
-                                    maxLines = 3
-                                )
-                            }
-                            Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.Bottom) {
-                                Text(
-                                    text = 47.toString() + " Replies",
-                                    fontWeight = FontWeight.Normal,
-                                    color = Color.Gray.copy(0.75f),
-                                    modifier = Modifier.weight(1f).padding(vertical = 8.dp),
-                                    textAlign = TextAlign.Left,
-                                    fontSize = 20.sp,
-                                    maxLines = 1,
-                                )
-                                Box {
-                                    MinimalDropdownMenu()
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-    }
-}
-*/
-
-@Composable
-fun ChatScreen() {
+fun ChatScreen(viewModel: MainViewModel) {
     val apiKey = BuildConfig.API_KEY
     println("API Key: $apiKey")
 
     val threadsClient = ThreadsClient("$apiKey")
-    val viewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/81835925105020928/threads/active")
+    val guildId = viewModel.guildId.value
+    val viewModel = ThreadsViewModel(threadsClient, "https://canary.discord.com/api/v9/guilds/$guildId/threads/active")
 
     Column(
         modifier = Modifier
@@ -129,7 +42,7 @@ fun ChatScreen() {
 }
 
 @Composable
-fun AccountScreen() {
+fun AccountScreen(viewModel: MainViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -148,7 +61,7 @@ fun AccountScreen() {
 }
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(viewModel: MainViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -158,6 +71,7 @@ fun SettingsScreen() {
         SharedForm { formState ->
             // Handle form submission
             Log.d("Form", "Guild ID: ${formState.guildId}, Forum ID: ${formState.forumId}")
+
         }
     }
 }

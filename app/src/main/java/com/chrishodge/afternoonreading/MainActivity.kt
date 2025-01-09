@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -36,8 +37,16 @@ import com.chrishodge.afternoonreading.ui.SettingsScreen
 import com.chrishodge.afternoonreading.ui.theme.AfternoonReadingTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var preferencesManager: PreferencesManager
+    private lateinit var viewModel: MainViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        preferencesManager = PreferencesManager(this)
+        viewModel = ViewModelProvider(
+            this,
+            MainViewModelFactory(preferencesManager)
+        )[MainViewModel::class.java]
         setContent {
             AfternoonReadingTheme {
                 // A surface container using the 'background' color from the theme
@@ -45,7 +54,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MainScreen()
+                    MainScreen(viewModel)
                 }
             }
         }
@@ -124,31 +133,31 @@ fun BottomNavigationBarPreview() {
 
 @Preview
 @Composable
-fun MainScreen() {
+fun MainScreen(viewModel: MainViewModel) {
     val navController = rememberNavController()
     Scaffold(
         // topBar = { TopBar() },
         bottomBar = { BottomNavigationBar(navController) },
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
-                Navigation(navController = navController)
+                Navigation(navController = navController, viewModel = viewModel)
             }
         },
-        backgroundColor = MaterialTheme.colors.background // Set background color to avoid the white flashing when you switch between screens
+        backgroundColor = MaterialTheme.colors.background
     )
 }
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, viewModel: MainViewModel) {
     NavHost(navController, startDestination = NavigationItem.Chat.route) {
         composable(NavigationItem.Chat.route) {
-            ChatScreen()
+            ChatScreen(viewModel = viewModel)
         }
         composable(NavigationItem.Account.route) {
-            AccountScreen()
+            AccountScreen(viewModel = viewModel)
         }
         composable(NavigationItem.Settings.route) {
-            SettingsScreen()
+            SettingsScreen(viewModel = viewModel)
         }
     }
 }
