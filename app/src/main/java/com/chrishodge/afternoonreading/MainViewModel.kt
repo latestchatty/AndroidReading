@@ -63,6 +63,11 @@ class MainViewModel(
     fun createMessageViewModel() {
         _messageViewModel.value = MessageViewModel()
     }
+
+    fun navigateToThreadsScreen() {
+        println("navigateToThreadsScreen")
+        _channelId.value = "0"
+    }
 }
 
 // Create a ViewModelFactory
