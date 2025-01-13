@@ -51,11 +51,10 @@ import coil.compose.AsyncImage
 fun MessagesScreen(
     mainViewModel: MainViewModel
 ) {
-    var channelId by remember { mutableStateOf("") }
-    var messageId by remember { mutableStateOf("") }
-
     val messageViewModel = mainViewModel.messageViewModel.collectAsState().value
     val channelName = mainViewModel.channelName.value
+    val channelId = mainViewModel.channelId.value
+    var messageId by remember { mutableStateOf("") }
 
     Scaffold(topBar = {
         TopAppBar(
@@ -67,7 +66,7 @@ fun MessagesScreen(
                 style = MaterialTheme.typography.bodyMedium)},
             navigationIcon = {
                 IconButton(onClick = {
-                    mainViewModel.setChannel("0", "")
+                    mainViewModel.setChannel(thread = null)
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -91,8 +90,44 @@ fun MessagesScreen(
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Column() {
-                        Spacer(modifier = Modifier.height(40.dp))
-                        Text(text = "Example")
+                        Spacer(modifier = Modifier.height(80.dp))
+
+                        /*
+                        Row( modifier = Modifier.padding(bottom = 8.dp)) {
+                            thread.author?.let {
+                                Text(
+                                    text = it,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorResource(id = R.color.orange),
+                                    textAlign = TextAlign.Left,
+                                    maxLines = 1
+                                )
+                            }
+                            if (thread.author?.isBlank() == true) {
+                                Box(modifier = Modifier.background(colorResource(id = R.color.redacted_orange))) {
+                                    Text(
+                                        text = "RedactedAuthor",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = colorResource(id = R.color.redacted_orange),
+                                        textAlign = TextAlign.Left,
+                                        maxLines = 1
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.weight(1f).fillMaxHeight())
+                            Text(
+                                text = "${thread.threadMetadata.createTimestamp?.let { formatDate(it) }}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray.copy(0.75f),
+                                textAlign = TextAlign.Right,
+                                maxLines = 1
+                            )
+                        }
+                        */
+
+
                     }
                 }
                 Box(

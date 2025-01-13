@@ -148,8 +148,8 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
 fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
     Card(
         onClick = {
-            mainViewModel.setChannel(thread.id, thread.name)
-            println("${thread.id}")
+            mainViewModel.setChannel(thread = thread)
+            println("$thread.id}")
         },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.25f),
