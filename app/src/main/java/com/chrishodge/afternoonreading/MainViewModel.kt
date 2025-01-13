@@ -12,6 +12,11 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
+    init {
+        // Load hidden IDs when ViewModel is created
+        // refreshHiddenIds()
+    }
+
     private val _threadsData = MutableStateFlow<List<Thread>>(emptyList())
     val threadsData = _threadsData.asStateFlow()
 
@@ -24,8 +29,17 @@ class MainViewModel(
     private val _forumId = mutableStateOf(preferencesManager.getString("forum_id"))
     val forumId: State<String> = _forumId
 
-    private val _hiddenIds = mutableStateOf(preferencesManager.getStringSet("hidden_ids"))
-    val hiddenIds: State<Set<String>> = _hiddenIds
+    private val _hiddenIds: MutableStateFlow<Set<String>> = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
+    val hiddenIds = _hiddenIds.asStateFlow()
+
+    //private val _hiddenIds = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
+    //val hiddenIds = _hiddenIds.asStateFlow()
+
+    //private val _hiddenIds = MutableStateFlow<Set<String>>(emptySet())
+    //val hiddenIds = _hiddenIds.asStateFlow()
+
+    // private val _hiddenIds = mutableStateOf(preferencesManager.getStringSet("hidden_ids"))
+    // val hiddenIds: State<Set<String>> = _hiddenIds
 
     private val _channelId = mutableStateOf("0")
     val channelId: State<String> = _channelId
@@ -48,6 +62,10 @@ class MainViewModel(
 
         // Update state
         _hiddenIds.value = currentIds
+    }
+
+    fun refreshHiddenIds() {
+        _hiddenIds.value = preferencesManager.getStringSet("hidden_ids")
     }
 
     fun loadThreads(guildId: String) {

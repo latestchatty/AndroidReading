@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,7 +54,6 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -97,6 +97,7 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, mod
                     }
                 }
                 is ThreadsUiState.Success -> {
+                    
                     ThreadsList(threads = state.threads, mainViewModel)
                     PullRefreshIndicator(refreshing, refreshingState, Modifier.align(Alignment.TopCenter))
                 }
@@ -118,16 +119,26 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, mod
 
 @Composable
 fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
+    // Get the current hidden IDs
+    val hiddenIds by mainViewModel.hiddenIds.collectAsState(initial = emptySet())
+
+    LaunchedEffect(Unit) {
+        mainViewModel.refreshHiddenIds()
+    }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(threads) { thread ->
+        // Filter out threads with hidden IDs
+        items(threads.filter { thread -> !hiddenIds.contains(thread.id) }) { thread ->
             ThreadCard(thread = thread, mainViewModel)
         }
     }
 }
+
+
 
 @Composable
 fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
