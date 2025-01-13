@@ -9,6 +9,12 @@ class PreferencesManager(context: Context) {
     )
 
     // Save different types of data
+    fun saveStringArray(key: String, values: Array<String>) {
+        // Convert array to Set for storage
+        val stringSet = values.toSet()
+        sharedPreferences.edit().putStringSet(key, stringSet).apply()
+    }
+
     fun saveString(key: String, value: String) {
         sharedPreferences.edit().putString(key, value).apply()
     }
@@ -32,5 +38,11 @@ class PreferencesManager(context: Context) {
 
     fun getBoolean(key: String, defaultValue: Boolean = false): Boolean {
         return sharedPreferences.getBoolean(key, defaultValue)
+    }
+
+    fun getStringArray(key: String, defaultValue: Array<String> = emptyArray()): Array<String> {
+        // Retrieve the Set and convert back to Array
+        val stringSet = sharedPreferences.getStringSet(key, defaultValue.toSet())
+        return stringSet?.toTypedArray() ?: defaultValue
     }
 }

@@ -271,11 +271,15 @@ fun MinimalDropdownMenu() {
     ) {
         DropdownMenuItem(
             text = { Text("Hide Thread", color = MaterialTheme.colorScheme.primary) },
-            onClick = { /* Do something... */ }
+            onClick = {
+                /* Do something... */
+            }
         )
         DropdownMenuItem(
             text = { Text("Report", color = MaterialTheme.colorScheme.primary) },
-            onClick = { /* Do something... */ }
+            onClick = {
+                /* Do something... */
+            }
         )
     }
 }
