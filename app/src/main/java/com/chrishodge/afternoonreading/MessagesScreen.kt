@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
@@ -51,7 +52,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.material.MaterialRichText
@@ -68,7 +68,7 @@ fun MessagesScreen(
     val messageViewModel = mainViewModel.messageViewModel.collectAsState().value
     val channelName = mainViewModel.channelName.value
     val channelId = mainViewModel.channelId.value
-    val channelOp = mainViewModel.channelOp.value
+    var channelOp = mainViewModel.channelOp.value
     var messageId by remember { mutableStateOf("0") }
     var selectedMessage by remember { mutableStateOf<Message?>(null) }
     val messageContentScrollState = rememberScrollState()
@@ -76,7 +76,11 @@ fun MessagesScreen(
 
     LaunchedEffect(channelOp) {
         messageId = channelId
+        if (channelOp == null) {
+            channelOp = messageViewModel?.fetchOp(messageId, messageId)
+        }
         selectedMessage = channelOp as? Message
+        messageViewModel?.fetchMessages(channelId)
     }
 
     fun formatDate(timestamp: String): String {
@@ -191,15 +195,19 @@ fun MessagesScreen(
                         .padding(8.dp)
                 ) {
                     Column() {
-                        Row( modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
-                            IconButton(onClick = {
+                        Row( modifier = Modifier.padding(start = 0.dp, end = 8.dp)) {
+                            if (messageViewModel?.isLoading?.value == true) {
+                                CircularProgressIndicator(modifier = Modifier.size(20.dp).padding(start = 6.dp, top = 4.dp))
+                            } else {
+                                IconButton(onClick = {
 
-                            }) {
-                                Icon(
-                                    Icons.Default.Refresh,
-                                    contentDescription = "Refresh",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
+                                }) {
+                                    Icon(
+                                        Icons.Default.Refresh,
+                                        contentDescription = "Refresh",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                             /*
                             IconButton(onClick = {
@@ -268,11 +276,16 @@ fun MessagesScreen(
                     contentAlignment = Alignment.TopStart
                 ){
                     Column(modifier = Modifier.verticalScroll(messageListScrollState)) {
-
-
-                        Text(text = "Example", textAlign = TextAlign.End, color = DarkGray, fontSize = 12.sp)
-
-
+                       channelOp?.author?.let {
+                           Text(
+                               text = it.globalName ?: it.username,
+                               style = MaterialTheme.typography.bodyMedium,
+                               fontWeight = FontWeight.Bold,
+                               color = colorResource(id = R.color.orange),
+                               textAlign = TextAlign.Left,
+                               maxLines = 1
+                           )
+                       }
                     }
                 }
             }

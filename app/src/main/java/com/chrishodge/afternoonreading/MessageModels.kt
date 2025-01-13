@@ -169,11 +169,38 @@ class MessageViewModel : ViewModel() {
     private var _message = mutableStateOf<Message?>(null)
     val message: State<Message?> = _message
 
+    private var _messages = mutableStateOf<List<Message>>(emptyList())
+    val messages: State<List<Message>> = _messages
+
     private var _error = mutableStateOf<String?>(null)
     val error: State<String?> = _error
 
     private var _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
+
+    fun fetchMessages(channelId: String, limit: Int = 100) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                val result = discordApi.getMessages(channelId, limit)
+                _messages.value = result
+                println("Messages received: ${result.size}")
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Unknown error occurred"
+                println("Error occurred: ${e.message}")
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun clearMessages() {
+        _messages.value = emptyList()
+        _message.value = null
+        _error.value = null
+    }
 
     fun fetchMessage(channelId: String, messageId: String) {
         viewModelScope.launch {
@@ -190,6 +217,24 @@ class MessageViewModel : ViewModel() {
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    suspend fun fetchOp(channelId: String, messageId: String): Message? {
+        _isLoading.value = true
+        _error.value = null
+        return try {
+            val result = discordApi.getMessage(channelId, messageId)
+            _message.value = result
+            println("Message received: $result")
+            result  // Return the message
+        } catch (e: Exception) {
+            _error.value = e.message ?: "Unknown error occurred"
+            println("Error occurred: ${e.message}")
+            e.printStackTrace()
+            null
+        } finally {
+            _isLoading.value = false
         }
     }
 }
