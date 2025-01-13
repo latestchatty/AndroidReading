@@ -101,7 +101,7 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, mod
                     }
                 }
                 is ThreadsUiState.Success -> {
-                    ThreadsList(threads = state.threads, mainViewModel, viewModel)
+                    ThreadsList(threads = state.threads, mainViewModel)
                     PullRefreshIndicator(refreshing, refreshingState, Modifier.align(Alignment.TopCenter))
                 }
                 is ThreadsUiState.Error -> {
@@ -121,7 +121,7 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, mod
 }
 
 @Composable
-fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel, threadsViewModel: ThreadsViewModel) {
+fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
     // Get the current hidden IDs
     val hiddenIds by mainViewModel.hiddenIds.collectAsState(initial = emptySet())
 
@@ -136,7 +136,7 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel, threadsView
     ) {
         // Filter out threads with hidden IDs
         items(threads.filter { thread -> !hiddenIds.contains(thread.id) }) { thread ->
-            ThreadCard(thread = thread, mainViewModel, threadsViewModel)
+            ThreadCard(thread = thread, mainViewModel)
         }
     }
 }
@@ -144,10 +144,10 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel, threadsView
 
 
 @Composable
-fun ThreadCard(thread: Thread, mainViewModel: MainViewModel, threadsViewModel: ThreadsViewModel) {
+fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
     Card(
         onClick = {
-            mainViewModel.setChannel(thread = thread, threadsViewModel)
+            mainViewModel.setChannel(thread = thread)
             println("$thread.id}")
         },
         colors = CardDefaults.cardColors(

@@ -83,7 +83,7 @@ class MainViewModel(
         }
     }
 
-    fun setChannel(thread: Thread?, threadsViewModel: ThreadsViewModel?) {
+    fun setChannel(thread: Thread?) {
         _channelId.value = thread?.id ?: "0"
         _channelName.value = thread?.name ?: ""
         _channelOP.value = thread?.firstPost

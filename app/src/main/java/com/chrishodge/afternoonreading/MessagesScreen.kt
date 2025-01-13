@@ -73,7 +73,7 @@ fun MessagesScreen(
             navigationIcon = {
                 IconButton(
                     onClick = {
-                    mainViewModel.setChannel(thread = null, null)
+                    mainViewModel.setChannel(thread = null)
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,

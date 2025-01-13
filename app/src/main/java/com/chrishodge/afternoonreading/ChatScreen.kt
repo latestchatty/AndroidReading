@@ -46,6 +46,7 @@ fun ChatScreen(viewModel: MainViewModel) {
 
     LaunchedEffect(Unit) {
         viewModel.createMessageViewModel()
+
     }
 
     Box(
