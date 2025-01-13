@@ -14,24 +14,30 @@ data class Message(
     val id: String,
     val type: Int,
     val content: String,
-    val channel_id: String,
+    @SerialName("channel_id")
+    val channelId: String,
     val author: Author,
     val timestamp: String,
     val pinned: Boolean,
-    val mention_everyone: Boolean,
+    @SerialName("mention_everyone")
+    val mentionEveryone: Boolean,
     val tts: Boolean,
 
     // Optional fields with default values
-    val edited_timestamp: String? = null,
+    @SerialName("edited_timestamp")
+    val editedTimestamp: String? = null,
     val mentions: List<Author> = emptyList(),
-    val mention_roles: List<String> = emptyList(),
+    @SerialName("mention_roles")
+    val mentionRoles: List<String> = emptyList(),
     val attachments: List<Attachment> = emptyList(),
     val embeds: List<Embed> = emptyList(),
     val reactions: List<Reaction>? = null,
     val flags: Int = 0,
     val position: Int? = null,
-    val message_reference: MessageReference? = null,
-    val referenced_message: Message? = null
+    @SerialName("message_reference")
+    val messageReference: MessageReference? = null,
+    @SerialName("referenced_message")
+    val referencedMessage: Message? = null
 )
 
 @Serializable
@@ -40,10 +46,12 @@ data class Author(
     val username: String,
     val avatar: String? = null,
     val discriminator: String,
-    val public_flags: Int = 0,
+    @SerialName("public_flags")
+    val publicFlags: Int = 0,
     val flags: Int = 0,
     val banner: String? = null,
-    val accent_color: Int? = null,
+    @SerialName("accent_color")
+    val accentColor: Int? = null,
     @SerialName("global_name")
     val globalName: String? = null,
     // @SerialName("avatar_decoration_data")
