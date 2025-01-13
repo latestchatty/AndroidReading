@@ -1,6 +1,7 @@
 package com.chrishodge.afternoonreading
 
 import android.text.format.DateUtils
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -270,6 +272,7 @@ fun MinimalDropdownMenu(thread: Thread, mainViewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
     var showHideDialog by remember { mutableStateOf(false) }
     var showReportDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     if (showHideDialog) {
         AlertDialog(
@@ -301,6 +304,7 @@ fun MinimalDropdownMenu(thread: Thread, mainViewModel: MainViewModel) {
             confirmButton = {
                 TextButton(onClick = {
                     // mainViewModel.reportThread(thread.id)
+                    Toast.makeText(context, "Content Reported!", Toast.LENGTH_SHORT).show()
                     showReportDialog = false
                     expanded = false
                 }) {
@@ -315,13 +319,15 @@ fun MinimalDropdownMenu(thread: Thread, mainViewModel: MainViewModel) {
         )
     }
 
-    androidx.compose.material.IconButton(onClick = { expanded = !expanded }) {
+
+    IconButton(onClick = { expanded = !expanded }) {
         Icon(
             Icons.Default.MoreVert,
             contentDescription = "More options",
             tint = MaterialTheme.colorScheme.primary
         )
     }
+
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = { expanded = false },
@@ -340,7 +346,7 @@ fun MinimalDropdownMenu(thread: Thread, mainViewModel: MainViewModel) {
         DropdownMenuItem(
             text = { Text("Report", color = MaterialTheme.colorScheme.primary) },
             onClick = {
-                /* Do something... */
+                showReportDialog = true
             }
         )
     }
