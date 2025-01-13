@@ -1,6 +1,8 @@
 package com.chrishodge.afternoonreading
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,14 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -26,12 +25,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -71,9 +73,46 @@ fun MessageScreen(
                 .padding(16.dp)
                 .fillMaxSize()
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
+            Column(modifier =Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .weight(1f)
+                        .padding(8.dp),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Column() {
+                        Spacer(modifier = Modifier.height(40.dp))
+                        Text(text = "Example", fontSize = 44.sp)
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(0.25f))
+                        .height(40.dp)
+                        .padding(8.dp)
+                ) {
+                    Column() {
+                        Text("Menubar")
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
+                        .weight(1f)
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    Column {
+                        Text(text = "Example", textAlign = TextAlign.End, color = DarkGray, fontSize = 12.sp)
+                    }
+                }
+            }
 
-
+            /*
             OutlinedTextField(
                 value = channelId,
                 onValueChange = { channelId = it },
@@ -119,6 +158,7 @@ fun MessageScreen(
             messageViewModel?.message?.value?.let { message ->
                 MessageCard(message)
             }
+            */
         }
     })
 }
