@@ -9,10 +9,8 @@ class PreferencesManager(context: Context) {
     )
 
     // Save different types of data
-    fun saveStringArray(key: String, values: Array<String>) {
-        // Convert array to Set for storage
-        val stringSet = values.toSet()
-        sharedPreferences.edit().putStringSet(key, stringSet).apply()
+    fun saveStringSet(key: String, value: Set<String>) {
+        sharedPreferences.edit().putStringSet(key, value).apply()
     }
 
     fun saveString(key: String, value: String) {
@@ -40,9 +38,7 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getBoolean(key, defaultValue)
     }
 
-    fun getStringArray(key: String, defaultValue: Array<String> = emptyArray()): Array<String> {
-        // Retrieve the Set and convert back to Array
-        val stringSet = sharedPreferences.getStringSet(key, defaultValue.toSet())
-        return stringSet?.toTypedArray() ?: defaultValue
+    fun getStringSet(key: String, defaultValue: Set<String> = emptySet()): Set<String> {
+        return sharedPreferences.getStringSet(key, defaultValue) ?: defaultValue
     }
 }

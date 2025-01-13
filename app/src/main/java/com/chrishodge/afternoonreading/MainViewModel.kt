@@ -24,8 +24,8 @@ class MainViewModel(
     private val _forumId = mutableStateOf(preferencesManager.getString("forum_id"))
     val forumId: State<String> = _forumId
 
-    private val _hiddenIds = mutableStateOf(preferencesManager.getStringArray("hidden_ids"))
-    val hiddenIds: State<Array<String>> = _hiddenIds
+    private val _hiddenIds = mutableStateOf(preferencesManager.getStringSet("hidden_ids"))
+    val hiddenIds: State<Set<String>> = _hiddenIds
 
     private val _channelId = mutableStateOf("0")
     val channelId: State<String> = _channelId
@@ -34,10 +34,8 @@ class MainViewModel(
     val channelName: State<String> = _channelName
 
     fun clearHiddenIds() {
-        // Clear the state
-        _hiddenIds.value = emptyArray()
-        // Clear from preferences
-        preferencesManager.saveStringArray("hidden_ids", emptyArray())
+        _hiddenIds.value = emptySet()
+        preferencesManager.saveStringSet("hidden_ids", emptySet())
     }
 
     fun loadThreads(guildId: String) {

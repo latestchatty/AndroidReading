@@ -28,6 +28,7 @@ data class FormState(
     val guildId: String = "1250110786676981872",
     val forumId: String = "1321902595287285832",
     var nickname: String = "",
+    var hiddenIds: Set<String> = emptySet(),
     val isValid: Boolean = false
 )
 
@@ -36,7 +37,8 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
     private val _formState = MutableStateFlow(FormState(
         guildId = preferencesManager.getString("guild_id"),
         forumId = preferencesManager.getString("forum_id"),
-        nickname = preferencesManager.getString("nickname")
+        nickname = preferencesManager.getString("nickname"),
+        hiddenIds = preferencesManager.getStringSet("hidden_ids"),
     ))
     val formState = _formState.asStateFlow()
 
@@ -68,6 +70,15 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
             )
         }
         preferencesManager.saveString("nickname", nickname)
+    }
+
+    fun clearHidden() {
+        _formState.update { currentState ->
+            currentState.copy(
+                hiddenIds = emptySet()
+            )
+        }
+        preferencesManager.saveStringSet("hidden_ids", emptySet())
     }
 
     private fun validateForm(guildId: String, forumId: String): Boolean {
@@ -133,17 +144,26 @@ fun SharedForm(
         Button(
             onClick = {
                 onSubmit(formState)
-                Toast.makeText(context, "Settings saved", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Settings Saved", Toast.LENGTH_SHORT).show()
                       },
             enabled = formState.isValid,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Save")
         }
+
+        Button(
+            onClick = {
+
+                Toast.makeText(context, "Hidden Cleared", Toast.LENGTH_SHORT).show()
+            },
+            enabled = true,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Clear Hidden")
+        }
     }
 }
-
-// mainViewModel.clearHiddenIds()
 
 // Add a Factory for FormViewModel
 class FormViewModelFactory(
