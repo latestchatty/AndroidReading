@@ -185,10 +185,10 @@ fun MessagesScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(0.25f))
-                        .height(40.dp)
+                        .height(44.dp)
                         .padding(8.dp)
                 ) {
-                    Column(modifier = Modifier.verticalScroll(messageListScrollState)) {
+                    Column() {
                         Row( modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
                             IconButton(onClick = {
 
@@ -254,7 +254,7 @@ fun MessagesScreen(
                         .padding(8.dp),
                     contentAlignment = Alignment.TopStart
                 ){
-                    Column {
+                    Column(modifier = Modifier.verticalScroll(messageListScrollState)) {
                         Text(text = "Example", textAlign = TextAlign.End, color = DarkGray, fontSize = 12.sp)
                     }
                 }
