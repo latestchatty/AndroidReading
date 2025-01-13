@@ -48,7 +48,7 @@ class MainViewModel(
     val channelName: State<String> = _channelName
 
     private val _channelOP = mutableStateOf<Message?>(null)
-    val channelOP: State<Message?> = _channelOP
+    val channelOp: State<Message?> = _channelOP
 
     fun clearHiddenIds() {
         _hiddenIds.value = emptySet()

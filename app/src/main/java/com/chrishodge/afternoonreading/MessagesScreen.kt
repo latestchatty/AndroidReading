@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -45,6 +46,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,11 +59,30 @@ fun MessagesScreen(
     val messageViewModel = mainViewModel.messageViewModel.collectAsState().value
     val channelName = mainViewModel.channelName.value
     val channelId = mainViewModel.channelId.value
+    val channelOp = mainViewModel.channelOp.value
     var messageId by remember { mutableStateOf("0") }
+    var selectedMessage by remember { mutableStateOf<Message?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(channelOp) {
         messageId = channelId
+        selectedMessage = channelOp as? Message
+    }
 
+    fun formatDate(timestamp: String): String {
+        return try {
+            // Parse the ISO 8601 timestamp
+            val inputSdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ", Locale.US)
+            inputSdf.timeZone = TimeZone.getTimeZone("UTC")
+            val date = inputSdf.parse(timestamp)
+
+            // Format the date in desired format
+            val outputSdf = SimpleDateFormat("MM-dd-yyyy HH:mm a", Locale.US)
+            outputSdf.timeZone = TimeZone.getDefault() // Or keep UTC if needed: TimeZone.getTimeZone("UTC")
+
+            return outputSdf.format(date)
+        } catch (e: Exception) {
+            timestamp
+        }
     }
 
     Scaffold(topBar = {
@@ -97,14 +120,12 @@ fun MessagesScreen(
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Column() {
-                        Spacer(modifier = Modifier.height(80.dp))
+                        Spacer(modifier = Modifier.height(60.dp))
 
-
-                        /*
                         Row( modifier = Modifier.padding(bottom = 8.dp)) {
-                            thread.author?.let {
+                            selectedMessage?.author?.let {
                                 Text(
-                                    text = it,
+                                    text = it.globalName ?: it.username,
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = colorResource(id = R.color.orange),
@@ -112,7 +133,7 @@ fun MessagesScreen(
                                     maxLines = 1
                                 )
                             }
-                            if (thread.author?.isBlank() == true) {
+                            if (selectedMessage?.author?.globalName?.isBlank() == true || selectedMessage?.author?.username?.isBlank() == true) {
                                 Box(modifier = Modifier.background(colorResource(id = R.color.redacted_orange))) {
                                     Text(
                                         text = "RedactedAuthor",
@@ -124,16 +145,15 @@ fun MessagesScreen(
                                     )
                                 }
                             }
-                            Spacer(Modifier.weight(1f).fillMaxHeight())
+                            Spacer(Modifier.weight(1f).fillMaxWidth())
                             Text(
-                                text = "${thread.threadMetadata.createTimestamp?.let { formatDate(it) }}",
+                                text = "${selectedMessage?.timestamp?.let { formatDate(it) }}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Gray.copy(0.75f),
                                 textAlign = TextAlign.Right,
                                 maxLines = 1
                             )
                         }
-                        */
 
 
                     }
