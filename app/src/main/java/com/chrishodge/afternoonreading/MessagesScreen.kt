@@ -87,7 +87,7 @@ fun MessagesScreen(
             val date = inputSdf.parse(timestamp)
 
             // Format the date in desired format
-            val outputSdf = SimpleDateFormat("MM-dd-yyyy HH:mm a", Locale.US)
+            val outputSdf = SimpleDateFormat("MM-dd-yyyy hh:mm a", Locale.US)
             outputSdf.timeZone = TimeZone.getDefault() // Or keep UTC if needed: TimeZone.getTimeZone("UTC")
 
             return outputSdf.format(date)
@@ -264,11 +264,15 @@ fun MessagesScreen(
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.background)
                         .weight(1f)
-                        .padding(8.dp),
+                        .padding(horizontal = 8.dp),
                     contentAlignment = Alignment.TopStart
                 ){
                     Column(modifier = Modifier.verticalScroll(messageListScrollState)) {
+
+
                         Text(text = "Example", textAlign = TextAlign.End, color = DarkGray, fontSize = 12.sp)
+
+
                     }
                 }
             }
