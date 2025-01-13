@@ -1,16 +1,22 @@
 package com.chrishodge.afternoonreading
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,7 +47,7 @@ import coil.compose.AsyncImage
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessageScreen(
+fun MessagesScreen(
     mainViewModel: MainViewModel
 ) {
     var channelId by remember { mutableStateOf("") }
@@ -70,7 +78,6 @@ fun MessageScreen(
     }, content = {
         Column(
             modifier = Modifier
-                .padding(16.dp)
                 .fillMaxSize()
         ) {
             Column(modifier =Modifier.fillMaxSize()) {
@@ -84,7 +91,7 @@ fun MessageScreen(
                 ) {
                     Column() {
                         Spacer(modifier = Modifier.height(40.dp))
-                        Text(text = "Example", fontSize = 44.sp)
+                        Text(text = "Example")
                     }
                 }
                 Box(
@@ -95,7 +102,56 @@ fun MessageScreen(
                         .padding(8.dp)
                 ) {
                     Column() {
-                        Text("Menubar")
+                        Row( modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
+                            IconButton(onClick = {
+
+                            }) {
+                                Icon(
+                                    Icons.Default.KeyboardArrowUp,
+                                    contentDescription = "Previous",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            IconButton(onClick = {
+
+                            }) {
+                                Icon(
+                                    Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Next",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Spacer(Modifier.weight(1f).fillMaxWidth())
+                            IconButton(onClick = {
+
+                            }) {
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = "More options",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            IconButton(onClick = {
+
+                            }) {
+                                Image(
+                                    painterResource(R.drawable.ic_tag_white_24dp),
+                                    contentDescription = "Reply",
+                                    contentScale = ContentScale.FillHeight,
+                                    modifier = Modifier.fillMaxHeight()
+                                )
+                            }
+                            IconButton(onClick = {
+
+                            }) {
+                                Image(
+                                    painterResource(R.drawable.ic_reply_white_24dp),
+                                    contentDescription = "Reply",
+                                    contentScale = ContentScale.FillHeight,
+                                    modifier = Modifier.fillMaxHeight()
+                                )
+                            }
+                        }
                     }
                 }
                 Box(

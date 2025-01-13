@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import com.chrishodge.afternoonreading.BuildConfig
 import com.chrishodge.afternoonreading.MainViewModel
-import com.chrishodge.afternoonreading.MessageScreen
+import com.chrishodge.afternoonreading.MessagesScreen
 import com.chrishodge.afternoonreading.ThreadsClient
 import com.chrishodge.afternoonreading.ThreadsScreen
 import com.chrishodge.afternoonreading.ThreadsViewModel
@@ -106,7 +106,7 @@ fun ChatScreen(viewModel: MainViewModel) {
                         )
                     }
             ) {
-                MessageScreen(mainViewModel = viewModel)
+                MessagesScreen(mainViewModel = viewModel)
             }
         }
     }
