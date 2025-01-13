@@ -16,9 +16,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -194,6 +193,16 @@ fun MessagesScreen(
 
                             }) {
                                 Icon(
+                                    Icons.Default.Refresh,
+                                    contentDescription = "Refresh",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            /*
+                            IconButton(onClick = {
+
+                            }) {
+                                Icon(
                                     Icons.Default.KeyboardArrowUp,
                                     contentDescription = "Previous",
                                     tint = MaterialTheme.colorScheme.primary
@@ -208,6 +217,7 @@ fun MessagesScreen(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
+                            */
                             Spacer(
                                 Modifier
                                     .weight(1f)
