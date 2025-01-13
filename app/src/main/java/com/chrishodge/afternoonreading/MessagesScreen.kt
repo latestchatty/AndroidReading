@@ -70,6 +70,7 @@ fun MessagesScreen(
     var messageId by remember { mutableStateOf("0") }
     var selectedMessage by remember { mutableStateOf<Message?>(null) }
     val messageContentScrollState = rememberScrollState()
+    val messageListScrollState = rememberScrollState()
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -132,7 +133,6 @@ fun MessagesScreen(
                 ) {
                     Column() {
                         Spacer(modifier = Modifier.height(60.dp))
-
                         Row( modifier = Modifier.padding(bottom = 8.dp)) {
                             selectedMessage?.author?.let {
                                 Text(
@@ -188,7 +188,7 @@ fun MessagesScreen(
                         .height(40.dp)
                         .padding(8.dp)
                 ) {
-                    Column() {
+                    Column(modifier = Modifier.verticalScroll(messageListScrollState)) {
                         Row( modifier = Modifier.padding(start = 8.dp, end = 8.dp)) {
                             IconButton(onClick = {
 
