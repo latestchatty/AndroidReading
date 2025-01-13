@@ -73,6 +73,7 @@ fun MessageScreen(
         ) {
             Spacer(modifier = Modifier.height(40.dp))
 
+
             OutlinedTextField(
                 value = channelId,
                 onValueChange = { channelId = it },

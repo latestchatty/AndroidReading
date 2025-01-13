@@ -7,9 +7,16 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 // DiscordApi.kt
 interface DiscordApi {
+    @GET("channels/{channelId}/messages")
+    suspend fun getMessages(
+        @Path("channelId") channelId: String,
+        @Query("limit") limit: Int
+    ): List<Message>
+
     @GET("channels/{channelId}/messages/{messageId}")
     suspend fun getMessage(
         @Path("channelId") channelId: String,
