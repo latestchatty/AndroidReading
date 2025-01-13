@@ -3,6 +3,7 @@ package com.chrishodge.afternoonreading
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,9 +14,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -74,6 +76,8 @@ fun MessagesScreen(
     val messageContentScrollState = rememberScrollState()
     val messageListScrollState = rememberScrollState()
 
+    val messages = messageViewModel?.messages?.value ?: emptyList()
+
     LaunchedEffect(channelOp) {
         messageId = channelId
         if (channelOp == null) {
@@ -100,245 +104,178 @@ fun MessagesScreen(
         }
     }
 
-    Scaffold(topBar = {
-        TopAppBar(
-            title = { Text(text = "$channelName ",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Right,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp),
-                style = MaterialTheme.typography.bodyMedium)},
-            navigationIcon = {
-                IconButton(
-                    onClick = {
-                    mainViewModel.setChannel(thread = null)
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "$channelName ",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Right,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { mainViewModel.setChannel(thread = null) }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
                 }
-            }
-        )
-    }, content = {
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            Column(modifier =Modifier.fillMaxSize()) {
-                Box(
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.4f)
+            ) {
+                Column(
                     modifier = Modifier
-                        .verticalScroll(messageContentScrollState)
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)
-                        .weight(1f)
-                        .padding(8.dp),
-                    contentAlignment = Alignment.TopCenter
+                        .fillMaxSize()
+                        .padding(8.dp)
                 ) {
-                    Column() {
-                        Spacer(modifier = Modifier.height(60.dp))
-                        Row( modifier = Modifier.padding(bottom = 8.dp)) {
-                            selectedMessage?.author?.let {
-                                Text(
-                                    text = it.globalName ?: it.username,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = colorResource(id = R.color.orange),
-                                    textAlign = TextAlign.Left,
-                                    maxLines = 1
-                                )
-                            }
-                            if (selectedMessage?.author?.globalName?.isBlank() == true || selectedMessage?.author?.username?.isBlank() == true) {
-                                Box(modifier = Modifier.background(colorResource(id = R.color.redacted_orange))) {
-                                    Text(
-                                        text = "RedactedAuthor",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = colorResource(id = R.color.redacted_orange),
-                                        textAlign = TextAlign.Left,
-                                        maxLines = 1
-                                    )
-                                }
-                            }
-                            Spacer(
-                                Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth())
+                    Row(modifier = Modifier.padding(bottom = 8.dp)) {
+                        selectedMessage?.author?.let {
                             Text(
-                                text = "${selectedMessage?.timestamp?.let { formatDate(it) }}",
+                                text = it.globalName ?: it.username,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray.copy(0.75f),
-                                textAlign = TextAlign.Right,
+                                fontWeight = FontWeight.Bold,
+                                color = colorResource(id = R.color.orange),
+                                textAlign = TextAlign.Left,
                                 maxLines = 1
                             )
                         }
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = selectedMessage?.timestamp?.let { formatDate(it) } ?: "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray.copy(0.75f),
+                            textAlign = TextAlign.Right,
+                            maxLines = 1
+                        )
+                    }
 
-                        Row( modifier = Modifier.padding(bottom = 8.dp)) {
-                            SimpleMarkdownText(markdown = channelName, modifier = Modifier.fillMaxWidth())
-                        }
+                    SimpleMarkdownText(
+                        markdown = channelName,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                        Row(modifier = Modifier.padding(bottom = 8.dp)) {
-                            EnhancedMarkdownText(
-                                markdown = selectedMessage?.content ?: "",
-                                modifier = Modifier.fillMaxWidth()
+                    EnhancedMarkdownText(
+                        markdown = selectedMessage?.content ?: "",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            // Action buttons section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(0.25f))
+                    .padding(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (messageViewModel?.isLoading?.value == true) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(start = 6.dp)
+                        )
+                    } else {
+                        IconButton(onClick = { }) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = "Refresh",
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(0.25f))
-                        .height(44.dp)
-                        .padding(8.dp)
-                ) {
-                    Column() {
-                        Row( modifier = Modifier.padding(start = 0.dp, end = 8.dp)) {
-                            if (messageViewModel?.isLoading?.value == true) {
-                                CircularProgressIndicator(modifier = Modifier.size(20.dp).padding(start = 6.dp, top = 4.dp))
-                            } else {
-                                IconButton(onClick = {
 
-                                }) {
-                                    Icon(
-                                        Icons.Default.Refresh,
-                                        contentDescription = "Refresh",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                            /*
-                            IconButton(onClick = {
+                    Spacer(modifier = Modifier.weight(1f))
 
-                            }) {
-                                Icon(
-                                    Icons.Default.KeyboardArrowUp,
-                                    contentDescription = "Previous",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                            IconButton(onClick = {
-
-                            }) {
-                                Icon(
-                                    Icons.Default.KeyboardArrowDown,
-                                    contentDescription = "Next",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                            */
-                            Spacer(
-                                Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth())
-                            IconButton(onClick = {
-
-                            }) {
-                                Icon(
-                                    Icons.Default.MoreVert,
-                                    contentDescription = "More options",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                            IconButton(onClick = {
-
-                            }) {
-                                Image(
-                                    painterResource(R.drawable.ic_tag_white_24dp),
-                                    contentDescription = "Reply",
-                                    contentScale = ContentScale.FillHeight,
-                                    modifier = Modifier.fillMaxHeight(),
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                                )
-                            }
-                            IconButton(onClick = {
-
-                            }) {
-                                Image(
-                                    painterResource(R.drawable.ic_reply_white_24dp),
-                                    contentDescription = "Reply",
-                                    contentScale = ContentScale.FillHeight,
-                                    modifier = Modifier.fillMaxHeight(),
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                                )
-                            }
-                        }
+                    IconButton(onClick = { }) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "More options",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.background)
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    contentAlignment = Alignment.TopStart
-                ){
-                    Column(modifier = Modifier.verticalScroll(messageListScrollState)) {
-                       channelOp?.author?.let {
-                           Text(
-                               text = it.globalName ?: it.username,
-                               style = MaterialTheme.typography.bodyMedium,
-                               fontWeight = FontWeight.Bold,
-                               color = colorResource(id = R.color.orange),
-                               textAlign = TextAlign.Left,
-                               maxLines = 1
-                           )
-                       }
+
+                    IconButton(onClick = { }) {
+                        Image(
+                            painterResource(R.drawable.ic_tag_white_24dp),
+                            contentDescription = "Tag",
+                            contentScale = ContentScale.FillHeight,
+                            modifier = Modifier.fillMaxHeight(),
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                        )
+                    }
+
+                    IconButton(onClick = { }) {
+                        Image(
+                            painterResource(R.drawable.ic_reply_white_24dp),
+                            contentDescription = "Reply",
+                            contentScale = ContentScale.FillHeight,
+                            modifier = Modifier.fillMaxHeight(),
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                        )
                     }
                 }
             }
 
-            /*
-            OutlinedTextField(
-                value = channelId,
-                onValueChange = { channelId = it },
-                label = { Text("Channel ID") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = messageId,
-                onValueChange = { messageId = it },
-                label = { Text("Message ID") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    messageViewModel?.fetchMessage(channelId, messageId)
-                },
-                modifier = Modifier.fillMaxWidth()
+            // Messages list section
+            LazyColumn(
+                modifier = Modifier
+                    .weight(0.6f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
             ) {
-                Text("Fetch Message")
+                items(
+                    items = messages,
+                    key = { message -> message.id }
+                ) { message ->
+                    Row(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = message.content,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Left,
+                            maxLines = 1,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = message.author.globalName ?: message.author.username,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.orange),
+                            textAlign = TextAlign.Right,
+                            maxLines = 1
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (messageViewModel?.isLoading?.value == true) {
-                CircularProgressIndicator()
-            }
-
-            // Handle error state
-            messageViewModel?.error?.value?.let { error ->
-                Text(
-                    text = "Error: $error",
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-
-            // Handle message state
-            messageViewModel?.message?.value?.let { message ->
-                MessageCard(message)
-            }
-            */
         }
-    })
+    }
 }
 @Composable
 fun MessageCard(message: Message) {
