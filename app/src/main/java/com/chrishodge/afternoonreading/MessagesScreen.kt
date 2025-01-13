@@ -59,18 +59,20 @@ fun MessagesScreen(
 
     LaunchedEffect(Unit) {
         messageId = channelId
+
     }
 
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text(text = "$channelName",
+            title = { Text(text = "$channelName ",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Right,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
                 style = MaterialTheme.typography.bodyMedium)},
             navigationIcon = {
-                IconButton(onClick = {
+                IconButton(
+                    onClick = {
                     mainViewModel.setChannel(thread = null, null)
                 }) {
                     Icon(
@@ -96,6 +98,7 @@ fun MessagesScreen(
                 ) {
                     Column() {
                         Spacer(modifier = Modifier.height(80.dp))
+
 
                         /*
                         Row( modifier = Modifier.padding(bottom = 8.dp)) {
