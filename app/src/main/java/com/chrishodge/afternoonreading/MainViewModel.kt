@@ -80,9 +80,10 @@ class MainViewModel(
         }
     }
 
-    fun setChannel(thread: Thread?) {
+    fun setChannel(thread: Thread?, threadsViewModel: ThreadsViewModel?) {
         _channelId.value = thread?.id ?: "0"
         _channelName.value = thread?.name ?: ""
+
     }
 
     fun saveGuildId(id: String) {

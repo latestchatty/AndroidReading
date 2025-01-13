@@ -71,7 +71,7 @@ fun MessagesScreen(
                 style = MaterialTheme.typography.bodyMedium)},
             navigationIcon = {
                 IconButton(onClick = {
-                    mainViewModel.setChannel(thread = null)
+                    mainViewModel.setChannel(thread = null, null)
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
