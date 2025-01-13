@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.update
 // FormState.kt
 data class FormState(
     val guildId: String = "1250110786676981872",
-    val forumId: String = "1317234644953071696",
+    val forumId: String = "1321902595287285832",
     var nickname: String = "",
     val isValid: Boolean = false
 )
@@ -142,6 +142,8 @@ fun SharedForm(
         }
     }
 }
+
+// mainViewModel.clearHiddenIds()
 
 // Add a Factory for FormViewModel
 class FormViewModelFactory(

@@ -24,7 +24,7 @@ class MainViewModel(
     private val _forumId = mutableStateOf(preferencesManager.getString("forum_id"))
     val forumId: State<String> = _forumId
 
-    private val _hiddenIds = mutableStateOf(preferencesManager.getStringArray("my_strings"))
+    private val _hiddenIds = mutableStateOf(preferencesManager.getStringArray("hidden_ids"))
     val hiddenIds: State<Array<String>> = _hiddenIds
 
     private val _channelId = mutableStateOf("0")
@@ -33,11 +33,17 @@ class MainViewModel(
     private val _channelName = mutableStateOf("")
     val channelName: State<String> = _channelName
 
+    fun clearHiddenIds() {
+        // Clear the state
+        _hiddenIds.value = emptyArray()
+        // Clear from preferences
+        preferencesManager.saveStringArray("hidden_ids", emptyArray())
+    }
+
     fun loadThreads(guildId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Your thread loading logic here
                 // _threadsData.value = result
                 println("todo...")
             } finally {
