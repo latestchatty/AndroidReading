@@ -154,13 +154,13 @@ fun SharedForm(
 
         Button(
             onClick = {
-
+                viewModel.clearHidden()
                 Toast.makeText(context, "Hidden Cleared", Toast.LENGTH_SHORT).show()
             },
             enabled = true,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Clear Hidden")
+            Text("Clear ${formState.hiddenIds.count()} Hidden")
         }
     }
 }
