@@ -51,6 +51,8 @@ fun MessageScreen(
             title = { Text(text = "$channelName",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Right,
+                modifier = Modifier.fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium)},
             navigationIcon = {
                 IconButton(onClick = {
