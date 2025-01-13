@@ -111,6 +111,10 @@ fun SharedForm(
     val viewModel = remember { FormViewModel.getInstance(activity, preferencesManager) }
     val formState by viewModel.formState.collectAsState()
 
+    val hiddenCount = remember(formState.hiddenIds) {
+        formState.hiddenIds.count()
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -157,10 +161,10 @@ fun SharedForm(
                 viewModel.clearHidden()
                 Toast.makeText(context, "Hidden Cleared", Toast.LENGTH_SHORT).show()
             },
-            enabled = true,
+            enabled = hiddenCount > 0,  // Only enable if there are hidden items
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Clear ${formState.hiddenIds.count()} Hidden")
+            Text("Clear $hiddenCount Hidden")
         }
     }
 }

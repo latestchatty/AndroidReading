@@ -29,8 +29,8 @@ class ThreadsClient(private val authToken: String) {
             }
 
             // Print raw response for debugging
-            val responseText = response.body<String>()
-            println("Raw response: $responseText")
+            //val responseText = response.body<String>()
+            //println("Raw response: $responseText")
 
             // Then parse it
             client.get(url) {
