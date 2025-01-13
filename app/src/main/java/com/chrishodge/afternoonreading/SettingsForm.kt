@@ -10,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -34,11 +35,13 @@ data class FormState(
 
 // FormViewModel.kt
 class FormViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
+    private val _hiddenIds = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
+    val hiddenIds = _hiddenIds.asStateFlow()
     private val _formState = MutableStateFlow(FormState(
         guildId = preferencesManager.getString("guild_id"),
         forumId = preferencesManager.getString("forum_id"),
         nickname = preferencesManager.getString("nickname"),
-        hiddenIds = preferencesManager.getStringSet("hidden_ids"),
+        hiddenIds = _hiddenIds.value,
     ))
     val formState = _formState.asStateFlow()
 
@@ -81,6 +84,17 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
         preferencesManager.saveStringSet("hidden_ids", emptySet())
     }
 
+    fun updateHiddenIds() {
+        val newHiddenIds = preferencesManager.getStringSet("hidden_ids")
+        _hiddenIds.value = newHiddenIds
+        _formState.update { it.copy(hiddenIds = newHiddenIds) }
+    }
+
+    // Optional: Add a function to be called when the form becomes active
+    fun refresh() {
+        updateHiddenIds()
+    }
+
     private fun validateForm(guildId: String, forumId: String): Boolean {
         return guildId.isNotBlank() && forumId.isNotBlank()
     }
@@ -110,9 +124,14 @@ fun SharedForm(
     val preferencesManager = remember { PreferencesManager(context) }
     val viewModel = remember { FormViewModel.getInstance(activity, preferencesManager) }
     val formState by viewModel.formState.collectAsState()
+    val hiddenIds by viewModel.hiddenIds.collectAsState()
 
-    val hiddenCount = remember(formState.hiddenIds) {
-        formState.hiddenIds.count()
+    val hiddenCount = remember(hiddenIds) {
+        hiddenIds.count()
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.updateHiddenIds()
     }
 
     Column(
