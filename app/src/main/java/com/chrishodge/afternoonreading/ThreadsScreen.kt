@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -266,6 +268,53 @@ private fun formatDate(timestamp: String): String {
 @Composable
 fun MinimalDropdownMenu(thread: Thread, mainViewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
+    var showHideDialog by remember { mutableStateOf(false) }
+    var showReportDialog by remember { mutableStateOf(false) }
+
+    if (showHideDialog) {
+        AlertDialog(
+            onDismissRequest = { showHideDialog = false },
+            title = { Text("Hide Thread") },
+            text = { Text("Are you sure you want to hide this thread?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    mainViewModel.addHiddenId(thread.id)
+                    showHideDialog = false
+                    expanded = false
+                }) {
+                    Text("Hide")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showHideDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showReportDialog) {
+        AlertDialog(
+            onDismissRequest = { showReportDialog = false },
+            title = { Text("Report") },
+            text = { Text("Are you sure you want to report this content?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    // mainViewModel.reportThread(thread.id)
+                    showReportDialog = false
+                    expanded = false
+                }) {
+                    Text("Report")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReportDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     androidx.compose.material.IconButton(onClick = { expanded = !expanded }) {
         Icon(
             Icons.Default.MoreVert,
@@ -283,8 +332,9 @@ fun MinimalDropdownMenu(thread: Thread, mainViewModel: MainViewModel) {
         DropdownMenuItem(
             text = { Text("Hide Thread", color = MaterialTheme.colorScheme.primary) },
             onClick = {
-                mainViewModel.addHiddenId(id = thread.id)
-                expanded = false
+                showHideDialog = true
+//                mainViewModel.addHiddenId(id = thread.id)
+//                expanded = false
             }
         )
         DropdownMenuItem(
