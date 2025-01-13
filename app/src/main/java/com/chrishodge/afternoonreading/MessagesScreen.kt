@@ -34,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -138,7 +139,8 @@ fun MessagesScreen(
                                     painterResource(R.drawable.ic_tag_white_24dp),
                                     contentDescription = "Reply",
                                     contentScale = ContentScale.FillHeight,
-                                    modifier = Modifier.fillMaxHeight()
+                                    modifier = Modifier.fillMaxHeight(),
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                                 )
                             }
                             IconButton(onClick = {
@@ -148,7 +150,8 @@ fun MessagesScreen(
                                     painterResource(R.drawable.ic_reply_white_24dp),
                                     contentDescription = "Reply",
                                     contentScale = ContentScale.FillHeight,
-                                    modifier = Modifier.fillMaxHeight()
+                                    modifier = Modifier.fillMaxHeight(),
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                                 )
                             }
                         }
