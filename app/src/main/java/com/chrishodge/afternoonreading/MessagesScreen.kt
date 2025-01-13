@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -39,12 +40,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -173,7 +176,7 @@ fun MessagesScreen(
                         }
 
                         Row(modifier = Modifier.padding(bottom = 8.dp)) {
-                            SimpleMarkdownText(
+                            EnhancedMarkdownText(
                                 markdown = selectedMessage?.content ?: "",
                                 modifier = Modifier.fillMaxWidth()
                             )
@@ -440,6 +443,110 @@ fun SimpleMarkdownText(
 
     Text(
         text = text,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun ClickableLinksText(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    val uriHandler = LocalUriHandler.current
+
+    // Regular expression to match URLs
+    val urlRegex = """(?:https?://)[^\s]+""".toRegex()
+
+    // Find all URLs in the text
+    val urlRanges = urlRegex.findAll(text)
+
+    // Build annotated string with clickable links
+    val annotatedString = buildAnnotatedString {
+        var lastIndex = 0
+
+        append(text)
+
+        // Add URL annotations and styling
+        urlRanges.forEach { matchResult ->
+            val start = matchResult.range.first
+            val end = matchResult.range.last + 1
+            val url = matchResult.value
+
+            // Add URL annotation
+            addStringAnnotation(
+                tag = "URL",
+                annotation = url,
+                start = start,
+                end = end
+            )
+
+            // Add URL styling
+            addStyle(
+                style = SpanStyle(
+                    color = Color(0xFFA459D6),
+                    //color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline
+                ),
+                start = start,
+                end = end
+            )
+        }
+    }
+
+    // Create clickable text
+    ClickableText(
+        text = annotatedString,
+        style = MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface
+        ),
+        modifier = modifier,
+        onClick = { offset ->
+            // Find which URL was clicked (if any)
+            annotatedString.getStringAnnotations(
+                tag = "URL",
+                start = offset,
+                end = offset
+            ).firstOrNull()?.let { annotation ->
+                // Open URL in browser
+                uriHandler.openUri(annotation.item)
+            }
+        }
+    )
+}
+
+// You can replace the SimpleMarkdownText in your MessagesScreen with this:
+@Composable
+fun EnhancedMarkdownText(
+    markdown: String,
+    modifier: Modifier = Modifier
+) {
+    // First handle markdown
+    val text = buildAnnotatedString {
+        // Bold text
+        val boldPattern = """(\*\*|__)(.*?)\1""".toRegex()
+        var lastIndex = 0
+
+        boldPattern.findAll(markdown).forEach { match ->
+            // Add text before the bold pattern
+            append(markdown.substring(lastIndex, match.range.first))
+
+            // Add the bold text
+            withStyle(SpanStyle( fontWeight = FontWeight.Bold)) {
+                append(match.groupValues[2])
+            }
+
+            lastIndex = match.range.last + 1
+        }
+
+        // Add remaining text
+        if (lastIndex < markdown.length) {
+            append(markdown.substring(lastIndex))
+        }
+    }
+
+    // Then handle clickable links
+    ClickableLinksText(
+        text = text.toString(),
         modifier = modifier
     )
 }
