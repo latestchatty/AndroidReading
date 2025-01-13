@@ -215,7 +215,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 Spacer(Modifier.weight(1f).fillMaxHeight())
                 Row {
                     Box {
-                        MinimalDropdownMenu(mainViewModel = mainViewModel)
+                        MinimalDropdownMenu(thread = thread, mainViewModel = mainViewModel)
                     }
                 }
             }
@@ -253,7 +253,7 @@ private fun formatDate(timestamp: String): String {
 }
 
 @Composable
-fun MinimalDropdownMenu(mainViewModel: MainViewModel) {
+fun MinimalDropdownMenu(thread: Thread, mainViewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
     androidx.compose.material.IconButton(onClick = { expanded = !expanded }) {
         Icon(
@@ -272,7 +272,8 @@ fun MinimalDropdownMenu(mainViewModel: MainViewModel) {
         DropdownMenuItem(
             text = { Text("Hide Thread", color = MaterialTheme.colorScheme.primary) },
             onClick = {
-                /* Do something... */
+                mainViewModel.addHiddenId(id = thread.id)
+                expanded = false
             }
         )
         DropdownMenuItem(

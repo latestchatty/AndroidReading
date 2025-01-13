@@ -38,6 +38,18 @@ class MainViewModel(
         preferencesManager.saveStringSet("hidden_ids", emptySet())
     }
 
+    fun addHiddenId(id: String) {
+        // Get current set and add new ID
+        val currentIds = _hiddenIds.value.toMutableSet()
+        currentIds.add(id)
+
+        // Save to preferences
+        preferencesManager.saveStringSet("hidden_ids", currentIds)
+
+        // Update state
+        _hiddenIds.value = currentIds
+    }
+
     fun loadThreads(guildId: String) {
         viewModelScope.launch {
             _isLoading.value = true
