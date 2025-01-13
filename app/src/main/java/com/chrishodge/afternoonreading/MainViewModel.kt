@@ -24,6 +24,9 @@ class MainViewModel(
     private val _forumId = mutableStateOf(preferencesManager.getString("forum_id"))
     val forumId: State<String> = _forumId
 
+    private val _hiddenIds = mutableStateOf(preferencesManager.getStringArray("my_strings"))
+    val hiddenIds: State<Array<String>> = _hiddenIds
+
     private val _channelId = mutableStateOf("0")
     val channelId: State<String> = _channelId
 

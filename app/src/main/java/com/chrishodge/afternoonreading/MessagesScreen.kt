@@ -127,7 +127,7 @@ fun MessageCard(message: Message) {
             .padding(8.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(20.dp)
         ) {
             Text(
                 text = message.author.username,

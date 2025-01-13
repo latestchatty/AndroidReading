@@ -204,7 +204,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
             Row {
                 Column {
                     Text(
-                        text = "${thread.messageCount} Replies",
+                        text = if (thread.messageCount == 1) "1 Reply" else "${thread.messageCount} Replies",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
@@ -215,7 +215,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 Spacer(Modifier.weight(1f).fillMaxHeight())
                 Row {
                     Box {
-                        MinimalDropdownMenu()
+                        MinimalDropdownMenu(mainViewModel = mainViewModel)
                     }
                 }
             }
@@ -253,7 +253,7 @@ private fun formatDate(timestamp: String): String {
 }
 
 @Composable
-fun MinimalDropdownMenu() {
+fun MinimalDropdownMenu(mainViewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
     androidx.compose.material.IconButton(onClick = { expanded = !expanded }) {
         Icon(
