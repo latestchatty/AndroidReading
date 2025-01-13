@@ -26,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +55,11 @@ fun MessagesScreen(
     val messageViewModel = mainViewModel.messageViewModel.collectAsState().value
     val channelName = mainViewModel.channelName.value
     val channelId = mainViewModel.channelId.value
-    var messageId by remember { mutableStateOf("") }
+    var messageId by remember { mutableStateOf("0") }
+
+    LaunchedEffect(Unit) {
+        messageId = channelId
+    }
 
     Scaffold(topBar = {
         TopAppBar(
