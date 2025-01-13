@@ -47,6 +47,9 @@ class MainViewModel(
     private val _channelName = mutableStateOf("")
     val channelName: State<String> = _channelName
 
+    private val _channelOP = mutableStateOf<Message?>(null)
+    val channelOP: State<Message?> = _channelOP
+
     fun clearHiddenIds() {
         _hiddenIds.value = emptySet()
         preferencesManager.saveStringSet("hidden_ids", emptySet())
@@ -83,7 +86,7 @@ class MainViewModel(
     fun setChannel(thread: Thread?, threadsViewModel: ThreadsViewModel?) {
         _channelId.value = thread?.id ?: "0"
         _channelName.value = thread?.name ?: ""
-
+        _channelOP.value = thread?.firstPost
     }
 
     fun saveGuildId(id: String) {
