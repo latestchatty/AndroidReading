@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -40,12 +42,17 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.halilibo.richtext.markdown.Markdown
+import com.halilibo.richtext.ui.material.MaterialRichText
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -62,6 +69,7 @@ fun MessagesScreen(
     val channelOp = mainViewModel.channelOp.value
     var messageId by remember { mutableStateOf("0") }
     var selectedMessage by remember { mutableStateOf<Message?>(null) }
+    val messageContentScrollState = rememberScrollState()
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -91,7 +99,9 @@ fun MessagesScreen(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Right,
-                modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp),
                 style = MaterialTheme.typography.bodyMedium)},
             navigationIcon = {
                 IconButton(
@@ -113,6 +123,7 @@ fun MessagesScreen(
             Column(modifier =Modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
+                        .verticalScroll(messageContentScrollState)
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.background)
                         .weight(1f)
@@ -145,7 +156,10 @@ fun MessagesScreen(
                                     )
                                 }
                             }
-                            Spacer(Modifier.weight(1f).fillMaxWidth())
+                            Spacer(
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth())
                             Text(
                                 text = "${selectedMessage?.timestamp?.let { formatDate(it) }}",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -155,7 +169,16 @@ fun MessagesScreen(
                             )
                         }
 
+                        Row( modifier = Modifier.padding(bottom = 8.dp)) {
+                            SimpleMarkdownText(markdown = channelName, modifier = Modifier.fillMaxWidth())
+                        }
 
+                        Row(modifier = Modifier.padding(bottom = 8.dp)) {
+                            SimpleMarkdownText(
+                                markdown = selectedMessage?.content ?: "",
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
                 Box(
@@ -185,7 +208,10 @@ fun MessagesScreen(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
-                            Spacer(Modifier.weight(1f).fillMaxWidth())
+                            Spacer(
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth())
                             IconButton(onClick = {
 
                             }) {
@@ -226,7 +252,7 @@ fun MessagesScreen(
                         .background(MaterialTheme.colorScheme.background)
                         .weight(1f)
                         .padding(8.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.TopStart
                 ){
                     Column {
                         Text(text = "Example", textAlign = TextAlign.End, color = DarkGray, fontSize = 12.sp)
@@ -339,4 +365,71 @@ fun AttachmentsList(attachments: List<Attachment>) {
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
+}
+
+// Basic implementation using compose-richtext library
+@Composable
+fun MarkdownText(
+    markdown: String,
+    modifier: Modifier = Modifier
+) {
+    MaterialRichText(modifier = modifier) {
+        Markdown(content = markdown)
+    }
+}
+
+// Example usage
+@Composable
+fun MarkdownPreview() {
+    val markdownContent = """
+        # Hello Markdown
+        
+        This is a **bold** text and *italic* text.
+        
+        ## List Example
+        - Item 1
+        - Item 2
+        
+        [Click here](https://example.com)
+    """.trimIndent()
+
+    MarkdownText(
+        markdown = markdownContent,
+        modifier = Modifier.padding(16.dp)
+    )
+}
+
+// Simple custom implementation without external dependencies
+@Composable
+fun SimpleMarkdownText(
+    markdown: String,
+    modifier: Modifier = Modifier
+) {
+    val text = buildAnnotatedString {
+        // Bold text
+        val boldPattern = """(\*\*|__)(.*?)\1""".toRegex()
+        var lastIndex = 0
+
+        boldPattern.findAll(markdown).forEach { match ->
+            // Add text before the bold pattern
+            append(markdown.substring(lastIndex, match.range.first))
+
+            // Add the bold text
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                append(match.groupValues[2])
+            }
+
+            lastIndex = match.range.last + 1
+        }
+
+        // Add remaining text
+        if (lastIndex < markdown.length) {
+            append(markdown.substring(lastIndex))
+        }
+    }
+
+    Text(
+        text = text,
+        modifier = modifier
+    )
 }

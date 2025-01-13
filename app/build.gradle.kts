@@ -94,6 +94,9 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.1.2")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    implementation("com.halilibo.compose-richtext:richtext-commonmark:0.17.0")
+    implementation("com.halilibo.compose-richtext:richtext-ui-material:0.17.0")
+
     // For Android ViewModel and LiveData
     //implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
     //implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
