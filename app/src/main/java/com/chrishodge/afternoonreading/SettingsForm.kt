@@ -30,6 +30,7 @@ data class FormState(
     val forumId: String = "1321902595287285832",
     var nickname: String = "",
     var hiddenIds: Set<String> = emptySet(),
+    var userToken: String = "",
     val isValid: Boolean = false
 )
 
@@ -42,6 +43,7 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
         forumId = preferencesManager.getString("forum_id"),
         nickname = preferencesManager.getString("nickname"),
         hiddenIds = _hiddenIds.value,
+        userToken = preferencesManager.getString("user_token"),
     ))
     val formState = _formState.asStateFlow()
 
@@ -73,6 +75,16 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
             )
         }
         preferencesManager.saveString("nickname", nickname)
+    }
+
+    fun updateUserToken(token: String) {
+        _formState.update { currentState ->
+            currentState.copy(
+                userToken = token,
+                isValid = validateForm(currentState.userToken, token)
+            )
+        }
+        preferencesManager.saveString("user_token", token)
     }
 
     fun clearHidden() {
@@ -160,6 +172,14 @@ fun SharedForm(
             value = formState.nickname,
             onValueChange = { viewModel.updateNickname(it) },
             label = { Text("Username") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        OutlinedTextField(
+            value = formState.userToken,
+            onValueChange = { viewModel.updateUserToken(it) },
+            label = { Text("User Token") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )

@@ -32,6 +32,9 @@ class MainViewModel(
     private val _hiddenIds: MutableStateFlow<Set<String>> = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
     val hiddenIds = _hiddenIds.asStateFlow()
 
+    private val _userToken = mutableStateOf(preferencesManager.getString("user_token"))
+    val userToken: State<String> = _userToken
+
     //private val _hiddenIds = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
     //val hiddenIds = _hiddenIds.asStateFlow()
 
