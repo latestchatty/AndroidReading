@@ -191,6 +191,7 @@ fun MessagesScreen(
                         )
                     }
 
+                    /*
                     // Display standard emoji names
                     selectedMessage?.reactions?.let { reactions ->
                         val standardEmojis = reactions.filter { it.emoji.id == null }
@@ -213,6 +214,7 @@ fun MessagesScreen(
                             }
                         }
                     }
+                    */
 
                     // Display supported reactions
                     selectedMessage?.reactions?.let { reactions ->
