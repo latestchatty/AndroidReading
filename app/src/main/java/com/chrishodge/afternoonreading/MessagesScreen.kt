@@ -350,7 +350,7 @@ fun ThreadedMessage(
         ) {
             if (indent > 0) {
                 Text(
-                    "A",
+                    "C",
                     fontFamily = replylines,
                     fontSize = 16.sp,
                     color = Color.LightGray
