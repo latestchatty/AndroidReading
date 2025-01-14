@@ -214,6 +214,21 @@ fun MessagesScreen(
                         }
                     }
 
+                    // Display reactions and colored tags
+                    selectedMessage?.reactions?.forEach { reaction ->
+                        reaction.emoji.id?.let { emojiId ->
+                            postTagColors[emojiId]?.let { color ->
+                                Text(
+                                    "A",
+                                    fontFamily = tags,
+                                    fontSize = 10.sp,
+                                    color = color,
+                                    modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+                                )
+                            }
+                        }
+                    }
+
                     if (selectedMessage?.id == channelId) {
                         SimpleMarkdownText(
                             markdown = channelName,
