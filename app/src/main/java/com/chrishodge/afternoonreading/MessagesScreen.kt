@@ -291,6 +291,7 @@ fun MessagesScreen(
     }
 }
 
+// ThreadMessageList
 @Composable
 private fun ThreadedMessageList(
     messages: List<Message>,
@@ -385,6 +386,8 @@ val postTagColors = mapOf(
     "981756323874078740" to Color(0xFF00BCD4)
 )
 
+
+// Messages (including OP)
 @Composable
 fun ThreadedMessage(
     message: Message,
@@ -427,6 +430,19 @@ fun ThreadedMessage(
                     fontFamily = replylines,
                     fontSize = 16.sp,
                     color = Color.LightGray
+                )
+            }
+            if (message.content.isBlank() && message.attachments.isNotEmpty()){
+                Text(
+                    text = "${message.attachments?.size} attachment(s)...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = if (recentIndex != null) FontWeight.SemiBold else FontWeight.Normal,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Left,
+                    maxLines = 1,
+                    modifier = Modifier
+                        .weight(1f)
+                        .alpha(textOpacity)
                 )
             }
             Text(
