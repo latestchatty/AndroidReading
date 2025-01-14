@@ -1,6 +1,7 @@
 package com.chrishodge.afternoonreading
 
 import android.annotation.SuppressLint
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,6 +48,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -61,6 +63,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.request.ImageRequest
+import coil.size.Size
 import com.chrishodge.afternoonreading.ui.theme.replylines
 import com.chrishodge.afternoonreading.ui.theme.tags
 import com.halilibo.richtext.markdown.Markdown
@@ -776,8 +782,19 @@ fun MessageAttachments(
         attachments.forEach { attachment ->
             when {
                 attachment.contentType?.startsWith("image/") == true -> {
+                    val isGif = attachment.contentType == "image/gif"
                     AsyncImage(
-                        model = attachment.url,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(attachment.url)
+                            .decoderFactory(if (isGif) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                                    ImageDecoderDecoder.Factory()
+                                } else {
+                                    GifDecoder.Factory()
+                                }
+                            } else GifDecoder.Factory() )
+                            .size(Size.ORIGINAL) // Preserve original dimensions for GIFs
+                            .build(),
                         contentDescription = attachment.filename,
                         modifier = Modifier
                             .fillMaxWidth()
