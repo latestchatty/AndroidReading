@@ -30,16 +30,20 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +51,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,6 +82,7 @@ import com.chrishodge.afternoonreading.ui.theme.replylines
 import com.chrishodge.afternoonreading.ui.theme.tags
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.material.MaterialRichText
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -97,6 +103,7 @@ fun MessagesScreen(
     val messageListScrollState = rememberScrollState()
     var messages = messageViewModel?.messages?.value ?: emptyList()
     val userToken by mainViewModel.userToken.collectAsState(initial = "")
+    var showReplySheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -314,15 +321,28 @@ fun MessagesScreen(
                             }
                         }
                     }
-
+                    // Reply to selectedMessage
                     if (userToken.isNotEmpty()) {
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = { showReplySheet = true }) {
                             Image(
                                 painterResource(R.drawable.ic_reply_white_24dp),
                                 contentDescription = "Reply",
                                 contentScale = ContentScale.FillHeight,
                                 modifier = Modifier.fillMaxHeight(),
                                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                        }
+                        // Add the bottom sheet
+                        if (showReplySheet) {
+                            ReplyBottomSheet(
+                                onDismiss = { showReplySheet = false },
+                                onSubmit = { replyText ->
+                                    // Here you would handle sending the reply
+                                    selectedMessage?.let { message ->
+                                        // For example: mainViewModel.sendReply(message.id, replyText)
+                                    }
+                                },
+                                replyingToMessage = selectedMessage
                             )
                         }
                     }
@@ -1086,6 +1106,90 @@ fun TagMenu(message: Message, mainViewModel: MainViewModel) {
                     Toast.makeText(context, "Tagged!", Toast.LENGTH_SHORT).show()
                 }
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReplyBottomSheet(
+    onDismiss: () -> Unit,
+    onSubmit: (String) -> Unit,
+    replyingToMessage: Message?
+) {
+    val sheetState = rememberModalBottomSheetState()
+    var replyText by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Show who we're replying to
+            replyingToMessage?.let { message ->
+                Text(
+                    text = "Replying to ${message.author.globalName ?: message.author.username}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                // Original message preview
+                Text(
+                    text = message.content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            // Reply input field
+            OutlinedTextField(
+                value = replyText,
+                onValueChange = { replyText = it },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Type your reply...") },
+                minLines = 3,
+                maxLines = 5
+            )
+
+            // Buttons row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = { scope.launch { onDismiss() } },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Dismiss")
+                }
+
+                Button(
+                    onClick = {
+                        scope.launch {
+                            onSubmit(replyText)
+                            Toast.makeText(context, "Reply sent!", Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        }
+                    },
+                    enabled = replyText.isNotBlank(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Submit")
+                }
+            }
+
+            // Add some padding at the bottom to account for system navigation
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
