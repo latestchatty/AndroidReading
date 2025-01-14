@@ -104,6 +104,7 @@ fun MessagesScreen(
     var messages = messageViewModel?.messages?.value ?: emptyList()
     val userToken by mainViewModel.userToken.collectAsState(initial = "")
     var showReplySheet by remember { mutableStateOf(false) }
+    val submitMessageScope = rememberCoroutineScope()
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -203,31 +204,6 @@ fun MessagesScreen(
                             maxLines = 1
                         )
                     }
-
-                    /*
-                    // Display standard emoji names
-                    selectedMessage?.reactions?.let { reactions ->
-                        val standardEmojis = reactions.filter { it.emoji.id == null }
-                        if (standardEmojis.isNotEmpty()) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp, bottom = 8.dp),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                standardEmojis.forEach { reaction ->
-                                    Text(
-                                        text = reaction.emoji.name,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    */
 
                     // Display supported reactions
                     selectedMessage?.reactions?.let { reactions ->
@@ -337,10 +313,18 @@ fun MessagesScreen(
                             ReplyBottomSheet(
                                 onDismiss = { showReplySheet = false },
                                 onSubmit = { replyText ->
-                                    // Here you would handle sending the reply
                                     selectedMessage?.let { message ->
-                                        // For example: mainViewModel.sendReply(message.id, replyText)
+                                        // Launch in a coroutine scope
+                                        submitMessageScope.launch {
+                                            messageViewModel?.submitReply(
+                                                messageId = message.id,
+                                                channelId = channelId,
+                                                messageContent = replyText,
+                                                primaryGuildId = mainViewModel.guildId.value
+                                            )
+                                        }
                                     }
+                                    showReplySheet = false
                                 },
                                 replyingToMessage = selectedMessage
                             )

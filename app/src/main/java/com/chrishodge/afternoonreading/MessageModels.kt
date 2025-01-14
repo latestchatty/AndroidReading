@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class Message(
@@ -165,6 +166,85 @@ data class MessageReference(
     val guildId: String
 )
 
+@Serializable
+enum class AllowedMentionTypes(val value: String) {
+    @SerialName("roles")
+    ROLE("roles"),  // Controls role mentions
+    @SerialName("users")
+    USER("users"),  // Controls user mentions
+    @SerialName("everyone")
+    EVERYONE("everyone")  // Controls @everyone and @here mentions
+}
+
+@Serializable
+data class AllowedMentions(
+    // An array of allowed mention types to parse from the content
+    val parse: List<AllowedMentionTypes>? = null,
+    // Array of role_ids to mention (Max size of 100)
+    val roles: List<String>? = null,  // Using String instead of Snowflake
+    // Array of user_ids to mention (Max size of 100)
+    val users: List<String>? = null,  // Using String instead of Snowflake
+    @SerialName("replied_user")
+    val repliedUser: Boolean? = null  // For replies, whether to mention the author of the message being replied to
+)
+
+@Serializable
+data class ChannelMention(
+    val id: String,  // Using String instead of Snowflake
+    @SerialName("guild_id")
+    val guildId: String,  // Using String instead of Snowflake
+    val type: ChannelType,
+    val name: String
+)
+
+@Serializable
+enum class ChannelType(val value: Int) {
+    @SerialName("0")
+    TEXT(0),
+    @SerialName("1")
+    DM(1),
+    @SerialName("2")
+    VOICE(2),
+    @SerialName("3")
+    GROUP_DM(3),
+    @SerialName("4")
+    CATEGORY(4),
+    @SerialName("5")
+    NEWS(5),
+    @SerialName("6")
+    STORE(6), // Deprecated game-selling channel
+    @SerialName("10")
+    NEWS_THREAD(10),
+    @SerialName("11")
+    PUBLIC_THREAD(11),
+    @SerialName("12")
+    PRIVATE_THREAD(12),
+    @SerialName("13")
+    STAGE_VOICE(13),
+    @SerialName("14")
+    DIRECTORY(14), // Hubs
+    @SerialName("15")
+    FORUM(15), // A channel that can only contain threads
+    @SerialName("-1")
+    UNKNOWN(-1); // An unknown value
+
+    companion object {
+        fun fromValue(value: Int): ChannelType =
+            values().find { it.value == value } ?: UNKNOWN
+    }
+}
+
+// New message data class
+@Serializable
+data class NewMessage(
+    val content: String,
+    @SerialName("allowed_mentions")
+    val allowedMentions: AllowedMentions? = null,
+    @SerialName("message_reference")
+    val messageReference: MessageReference? = null,
+    val attachments: List<Attachment>? = null
+)
+
 class MessageViewModel : ViewModel() {
     private val discordApi = DiscordApi.create()
     private var _message = mutableStateOf<Message?>(null)
@@ -178,6 +258,51 @@ class MessageViewModel : ViewModel() {
 
     private var _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
+
+    // Add the submitReply function here
+    suspend fun submitReply(messageId: String, channelId: String, messageContent: String, primaryGuildId: String) {
+        try {
+            val allowedMentions = AllowedMentions(
+                parse = listOf(
+                    AllowedMentionTypes.USER,
+                    AllowedMentionTypes.ROLE,
+                    AllowedMentionTypes.EVERYONE
+                ),
+                repliedUser = false
+            )
+
+            val reference = if (messageId != channelId) {
+                MessageReference(
+                    messageId = messageId,
+                    channelId = channelId,
+                    guildId = primaryGuildId,
+                    type = 0
+                )
+            } else null
+
+            val newMessage = NewMessage(
+                content = messageContent,
+                allowedMentions = allowedMentions,
+                messageReference = reference,
+                attachments = null
+            )
+
+            val messageJson = Json.encodeToString(NewMessage.serializer(), newMessage)
+            println("Going to post now: $messageJson")
+
+            val response = discordApi.createMessage(
+                channelId = channelId,
+                message = newMessage
+            )
+
+            println("Posted to forum and got response: $response")
+            fetchMessages(channelId = channelId, limit = 100)
+
+        } catch (e: Exception) {
+            println("Message error: ${e}")
+            _error.value = e.message ?: "Unknown error occurred"
+        }
+    }
 
     fun fetchMessages(channelId: String, limit: Int = 100, op: Message? = null) {
         viewModelScope.launch {
