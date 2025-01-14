@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -89,7 +90,6 @@ fun MessagesScreen(
     var selectedMessage by remember { mutableStateOf<Message?>(null) }
     val messageContentScrollState = rememberScrollState()
     val messageListScrollState = rememberScrollState()
-
     var messages = messageViewModel?.messages?.value ?: emptyList()
 
     LaunchedEffect(channelOp) {
@@ -167,6 +167,7 @@ fun MessagesScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        .verticalScroll(messageContentScrollState)
                         .padding(8.dp)
                 ) {
                     Row(modifier = Modifier.padding(bottom = 8.dp)) {
