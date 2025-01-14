@@ -301,23 +301,21 @@ fun MessagesScreen(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    Box() {
-                        selectedMessage?.let {
+                    selectedMessage?.let {
+                        Box() {
                             MoreDropdownMenu(message = it, mainViewModel = mainViewModel)
                         }
                     }
 
-                    if (userToken.isNotEmpty()) {
-                        IconButton(onClick = { }) {
-                            Image(
-                                painterResource(R.drawable.ic_tag_white_24dp),
-                                contentDescription = "Tag",
-                                contentScale = ContentScale.FillHeight,
-                                modifier = Modifier.fillMaxHeight(),
-                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                            )
+                    selectedMessage?.let {
+                        if (userToken.isNotEmpty()) {
+                            Box() {
+                                TagMenu(message = it, mainViewModel = mainViewModel)
+                            }
                         }
+                    }
 
+                    if (userToken.isNotEmpty()) {
                         IconButton(onClick = { }) {
                             Image(
                                 painterResource(R.drawable.ic_reply_white_24dp),
@@ -1056,5 +1054,39 @@ fun MoreDropdownMenu(message: Message, mainViewModel: MainViewModel) {
                 showReportDialog = true
             }
         )
+    }
+}
+
+@Composable
+fun TagMenu(message: Message, mainViewModel: MainViewModel) {
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    IconButton(onClick = { expanded = !expanded }) {
+        Image(
+            painterResource(R.drawable.ic_tag_white_24dp),
+            contentDescription = "Tag",
+            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.fillMaxHeight(),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+        )
+
+    }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false },
+        modifier = Modifier.background(
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        postTagIds.map { (tag, id) ->
+            DropdownMenuItem(
+                text = { Text(tag.removePrefix("Shack"), color = MaterialTheme.colorScheme.primary) },
+                onClick = {
+                    expanded = false
+                    Toast.makeText(context, "Tagged!", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 }
