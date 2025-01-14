@@ -129,6 +129,7 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
 @Composable
 fun SharedForm(
     modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel,
     onSubmit: (FormState) -> Unit
 ) {
     val context = LocalContext.current
@@ -187,6 +188,11 @@ fun SharedForm(
         Button(
             onClick = {
                 onSubmit(formState)
+                if (formState.userToken.isNotBlank()) {
+                    mainViewModel.updateUserToken(formState.userToken)
+                } else {
+                    mainViewModel.clearUserToken()
+                }
                 Toast.makeText(context, "Settings Saved", Toast.LENGTH_SHORT).show()
                       },
             enabled = formState.isValid,

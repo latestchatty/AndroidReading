@@ -32,17 +32,22 @@ class MainViewModel(
     private val _hiddenIds: MutableStateFlow<Set<String>> = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
     val hiddenIds = _hiddenIds.asStateFlow()
 
-    private val _userToken = mutableStateOf(preferencesManager.getString("user_token"))
-    val userToken: State<String> = _userToken
+    private val _userToken = MutableStateFlow(
+        preferencesManager.getString("user_token").also {
+            println("Initial token loaded: '$it'")
+        }
+    )
+    val userToken = _userToken.asStateFlow()
 
-    //private val _hiddenIds = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
-    //val hiddenIds = _hiddenIds.asStateFlow()
+    fun updateUserToken(newToken: String) {
+        _userToken.value = newToken
+        preferencesManager.saveString("user_token", newToken)
+    }
 
-    //private val _hiddenIds = MutableStateFlow<Set<String>>(emptySet())
-    //val hiddenIds = _hiddenIds.asStateFlow()
-
-    // private val _hiddenIds = mutableStateOf(preferencesManager.getStringSet("hidden_ids"))
-    // val hiddenIds: State<Set<String>> = _hiddenIds
+    fun clearUserToken() {
+        _userToken.value = ""
+        preferencesManager.saveString("user_token", "")
+    }
 
     private val _channelId = mutableStateOf("0")
     val channelId: State<String> = _channelId

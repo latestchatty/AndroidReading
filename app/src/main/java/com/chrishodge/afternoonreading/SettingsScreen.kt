@@ -20,10 +20,13 @@ fun SettingsScreen(viewModel: MainViewModel) {
             .background(MaterialTheme.colorScheme.background)
             .wrapContentSize(Alignment.Center)
     ) {
-        SharedForm { formState ->
-            // Handle form submission
-            Log.d("Form", "Guild ID: ${formState.guildId}, Forum ID: ${formState.forumId}")
-        }
+        SharedForm(
+            mainViewModel = viewModel,
+            onSubmit = { formState ->
+                Log.d("Form", "Guild ID: ${formState.guildId}, Forum ID: ${formState.forumId}")
+
+            }
+        )
     }
 }
 

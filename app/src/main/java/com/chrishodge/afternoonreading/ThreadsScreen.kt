@@ -71,18 +71,26 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, mod
         refreshing = false
     }
     val refreshingState = rememberPullRefreshState(refreshing, ::refresh)
+    val userToken by mainViewModel.userToken.collectAsState(initial = "")
+
+    LaunchedEffect(userToken) {
+        println("Current user token: '$userToken'")
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("Chat") },
                 actions = {
-                    IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(
-                            Icons.Default.Create,
-                            contentDescription = "New Thread",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                    if (userToken.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.refresh() }) {
+                            Icon(
+                                Icons.Default.Create,
+                                contentDescription = "New Thread",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             )
