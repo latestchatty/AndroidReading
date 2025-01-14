@@ -344,6 +344,24 @@ private fun ThreadedMessageList(
     }
 }
 
+val postTagIds = mapOf(
+    "ShackLOL" to "981756323848917012",
+    "ShackINF" to "981756323525967973",
+    "ShackUNF" to "981756323819565129",
+    "ShackWTF" to "981756323932823592",
+    "ShackWOW" to "981756323827965963",
+    "ShackAWW" to "981756323874078740"
+)
+
+val postTagColors = mapOf(
+    "981756323848917012" to Color(0xFFFF9800),
+    "981756323525967973" to Color.Blue,
+    "981756323819565129" to Color.Red,
+    "981756323932823592" to Color(0xFF9C27B0),
+    "981756323827965963" to Color.White,
+    "981756323874078740" to Color(0xFF00BCD4)
+)
+
 @Composable
 fun ThreadedMessage(
     message: Message,
@@ -352,14 +370,8 @@ fun ThreadedMessage(
     recentIndex: Int? = null,
     onMessageClick: (Message) -> Unit = {}
 ) {
-    // Define opacity levels for the 5 most recent messages (from most to least recent)
-    val recentOpacities = listOf(0.5f, 0.4f, 0.3f, 0.2f, 0.1f)
-
     val backgroundColor = when {
         isSelected -> Color(0xFFA459D6).copy(alpha = 0.5f)
-        recentIndex != null -> Color.Transparent // .colorScheme.primary.copy(
-        //    alpha = recentOpacities[recentIndex]
-        //)
         else -> Color.Transparent
     }
 
@@ -383,7 +395,8 @@ fun ThreadedMessage(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             if (indent > 0) {
                 Text(
@@ -412,20 +425,25 @@ fun ThreadedMessage(
                 textAlign = TextAlign.Right,
                 maxLines = 1
             )
-            if (recentIndex != null) {
-                Text(
-                    "${recentIndex + 1}",
-                    fontFamily = tags,
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = recentOpacities[recentIndex]),
-                    modifier = Modifier.padding(start = 4.dp)
-                )
+
+            // Display reactions and colored tags
+            message.reactions?.forEach { reaction ->
+                reaction.emoji.id?.let { emojiId ->
+                    // If this emoji ID is in postTagColors, display the colored "A"
+                    postTagColors[emojiId]?.let { color ->
+                        Text(
+                            "A",
+                            fontFamily = tags,
+                            fontSize = 10.sp,
+                            color = color,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                }
             }
-            Text("A", fontFamily = tags, fontSize = 10.sp, color = Color.Red)
         }
     }
 }
-
 // Basic implementation using compose-richtext library
 @Composable
 fun MarkdownText(
