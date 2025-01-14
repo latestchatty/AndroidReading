@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -57,7 +56,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.chrishodge.afternoonreading.ui.theme.replylines
 import com.chrishodge.afternoonreading.ui.theme.tags
 import com.halilibo.richtext.markdown.Markdown
@@ -254,100 +252,112 @@ fun MessagesScreen(
             }
 
             // Messages list section
-            LazyColumn(
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier
-                    .weight(0.6f)
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-            ) {
-                items(
-                    items = messages,
-                    key = { message -> message.id }
-                ) { message ->
-                    Row(
-                        modifier = Modifier.padding(0.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("A", fontFamily = replylines, fontSize = 16.sp, color = Color.LightGray)
-                        Text(
-                            text = message.content,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Left,
-                            maxLines = 1,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            text = message.author.globalName ?: message.author.username,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = colorResource(id = R.color.orange),
-                            textAlign = TextAlign.Right,
-                            maxLines = 1
-                        )
-                        Text("A", fontFamily = tags, fontSize = 10.sp, color = Color.Red)
-                    }
-                }
-            }
-
+            ThreadedMessageList(
+                messages = messages,
+                modifier = Modifier.weight(0.6f)
+            )
         }
     }
 }
+
 @Composable
-fun MessageCard(message: Message) {
-    Card(
+private fun ThreadedMessageList(
+    messages: List<Message>,
+    modifier: Modifier = Modifier
+) {
+    // Create a map for threaded messages
+    val threadMap = remember(messages) {
+        messages.groupBy { it.messageReference?.messageId }
+    }
+
+    // Helper function to recursively build thread
+    fun buildThreadItems(
+        parentId: String?,
+        indent: Int,
+        processedIds: MutableSet<String>
+    ): List<Pair<Message, Int>> {
+        return threadMap[parentId]?.flatMap { message ->
+            if (processedIds.add(message.id)) {
+                listOf(message to indent) +
+                        buildThreadItems(message.id, indent + 1, processedIds)
+            } else emptyList()
+        } ?: emptyList()
+    }
+
+    // Start with top-level messages (no references)
+    val processedIds = mutableSetOf<String>()
+    val threadedMessages = messages
+        .filter { it.messageReference == null }
+        .flatMap { message ->
+            if (processedIds.add(message.id)) {
+                listOf(message to 0) +
+                        buildThreadItems(message.id, 1, processedIds)
+            } else emptyList()
+        }
+
+    LazyColumn(
+        contentPadding = PaddingValues(0.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+    ) {
+        items(
+            items = threadedMessages,
+            key = { (message, _) -> message.id }
+        ) { (message, indent) ->
+            ThreadedMessage(
+                message = message,
+                indent = indent,
+                onMessageClick = { /* Handle message click if needed */ }
+            )
+        }
+    }
+}
+
+// First, let's create a composable for threaded messages
+@Composable
+fun ThreadedMessage(
+    message: Message,
+    indent: Int = 0,
+    onMessageClick: (Message) -> Unit = {}
+) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(start = (indent * 16).dp)
     ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            if (indent > 0) {
+                Text(
+                    "A",
+                    fontFamily = replylines,
+                    fontSize = 16.sp,
+                    color = Color.LightGray
+                )
+            }
             Text(
-                text = message.author.username,
+                text = message.content,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Left,
+                maxLines = 1,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = message.author.globalName ?: message.author.username,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = colorResource(id = R.color.orange),
-                textAlign = TextAlign.Left,
+                textAlign = TextAlign.Right,
                 maxLines = 1
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = message.content,
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            if (message.attachments.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                AttachmentsList(message.attachments)
-            }
-        }
-    }
-}
-
-@Composable
-fun AttachmentsList(attachments: List<Attachment>) {
-    Column {
-        attachments.forEach { attachment ->
-            if (attachment.contentType?.startsWith("image/") == true) {
-                AsyncImage(
-                    model = attachment.url,
-                    contentDescription = attachment.filename,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                )
-            } else {
-                Text(
-                    text = attachment.filename,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            Text("A", fontFamily = tags, fontSize = 10.sp, color = Color.Red)
         }
     }
 }
