@@ -3,6 +3,7 @@ package com.chrishodge.afternoonreading
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -265,6 +266,16 @@ private fun ThreadedMessageList(
     messages: List<Message>,
     modifier: Modifier = Modifier
 ) {
+    // Add selected message state
+    var selectedMessageId by remember { mutableStateOf<String?>(null) }
+
+    // Set initial selection to first message if available
+    LaunchedEffect(messages) {
+        if (selectedMessageId == null && messages.isNotEmpty()) {
+            selectedMessageId = messages.first().id
+        }
+    }
+
     val threadMap = remember(messages) {
         messages.groupBy { it.messageReference?.messageId }
     }
@@ -293,11 +304,11 @@ private fun ThreadedMessageList(
         }
 
     LazyColumn(
-        contentPadding = PaddingValues(0.dp), // Set to 0.dp
+        contentPadding = PaddingValues(0.dp),
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
-        verticalArrangement = Arrangement.Top // Add this to remove default spacing
+        verticalArrangement = Arrangement.Top
     ) {
         items(
             items = threadedMessages,
@@ -306,7 +317,8 @@ private fun ThreadedMessageList(
             ThreadedMessage(
                 message = message,
                 indent = indent,
-                onMessageClick = { /* Handle message click if needed */ }
+                isSelected = message.id == selectedMessageId,
+                onMessageClick = { selectedMessageId = it.id }
             )
         }
     }
@@ -316,17 +328,24 @@ private fun ThreadedMessageList(
 fun ThreadedMessage(
     message: Message,
     indent: Int = 0,
+    isSelected: Boolean = false,
     onMessageClick: (Message) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = (indent * 16).dp)
+            .background(
+                if (isSelected) Color(0xFFA459D6).copy(alpha = 0.5f) // MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                else Color.Transparent
+            )
+            // Add clickable modifier
+            .clickable { onMessageClick(message) }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 0.dp), // Change this from 4.dp to 0.dp
+                .padding(vertical = 0.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (indent > 0) {
