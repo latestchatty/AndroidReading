@@ -191,7 +191,7 @@ fun SharedForm(
                 mainViewModel.updateUserToken(formState.userToken)
                 Toast.makeText(context, "Settings Saved", Toast.LENGTH_SHORT).show()
                       },
-            enabled = formState.isValid,
+            enabled = true, // formState.isValid,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Save")
