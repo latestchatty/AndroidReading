@@ -33,24 +33,32 @@ class ThreadsViewModel(
 
                 // First get threads and show them immediately
                 val response = threadsClient.getThreads(apiUrl)
-                val initialThreads = response.threads.filter { it.parentId == forumId }.take(99)
+                val initialThreads = response.threads.filter { it.parentId == forumId }
                 _uiState.value = ThreadsUiState.Success(initialThreads)
 
                 // Then update authors one by one
                 val processedThreads = initialThreads.toMutableList()
                 initialThreads.forEachIndexed { index, thread ->
                     try {
-                        delay(200) // 200ms delay between requests
-                        val messageResponse = threadsClient.getMessage(
-                            url = "https://canary.discord.com/api/v9/channels/${thread.id}/messages/${thread.id}"
-                        )
-                        // Update the thread with author info
-                        processedThreads[index] = thread.copy(
-                            author = (messageResponse.author?.globalName ?: messageResponse.author?.username).toString(),
-                            firstPost = messageResponse
-                        )
-                        // Emit updated list after each thread is processed
-                        _uiState.value = ThreadsUiState.Success(processedThreads.toList())
+                        if (index < 30) {
+                            delay(200) // 200ms delay between requests
+                            val messageResponse = threadsClient.getMessage(
+                                url = "https://canary.discord.com/api/v9/channels/${thread.id}/messages/${thread.id}"
+                            )
+                            // Update the thread with author info
+                            processedThreads[index] = thread.copy(
+                                author = (messageResponse.author?.globalName
+                                    ?: messageResponse.author?.username).toString(),
+                                firstPost = messageResponse
+                            )
+                            // Emit updated list after each thread is processed
+                            _uiState.value = ThreadsUiState.Success(processedThreads.toList())
+                        } else {
+                            // Update the thread with author info
+                            processedThreads[index] = thread.copy()
+                            // Emit updated list after each thread is processed
+                            _uiState.value = ThreadsUiState.Success(processedThreads.toList())
+                        }
                     } catch (e: Exception) {
                         println("Error fetching message for thread ${thread.id}: ${e.message}")
                     }
