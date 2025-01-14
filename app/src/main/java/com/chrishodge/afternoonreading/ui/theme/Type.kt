@@ -1,6 +1,9 @@
 package com.chrishodge.afternoonreading.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import com.chrishodge.afternoonreading.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -30,3 +33,6 @@ val Typography = Typography(
     )
     */
 )
+
+val replylines = FontFamily(Font(R.font.replylines))
+val tags = FontFamily(Font(R.font.tags))

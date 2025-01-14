@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -54,7 +55,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.chrishodge.afternoonreading.ui.theme.replylines
+import com.chrishodge.afternoonreading.ui.theme.tags
 import com.halilibo.richtext.markdown.Markdown
 import com.halilibo.richtext.ui.material.MaterialRichText
 import java.text.SimpleDateFormat
@@ -240,19 +244,21 @@ fun MessagesScreen(
 
             // Messages list section
             LazyColumn(
+                contentPadding = PaddingValues(0.dp),
                 modifier = Modifier
                     .weight(0.6f)
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 8.dp),
             ) {
                 items(
                     items = messages,
                     key = { message -> message.id }
                 ) { message ->
                     Row(
-                        modifier = Modifier.padding(vertical = 4.dp),
+                        modifier = Modifier.padding(0.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        Text("A", fontFamily = replylines, fontSize = 16.sp, color = Color.LightGray)
                         Text(
                             text = message.content,
                             style = MaterialTheme.typography.bodyMedium,
@@ -270,6 +276,7 @@ fun MessagesScreen(
                             textAlign = TextAlign.Right,
                             maxLines = 1
                         )
+                        Text("A", fontFamily = tags, fontSize = 10.sp, color = Color.Red)
                     }
                 }
             }
