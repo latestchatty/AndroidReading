@@ -42,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -274,10 +275,16 @@ private fun ThreadedMessageList(
     selectedMessage: Message?,
     onMessageSelected: (Message) -> Unit
 ) {
-    // Add selected message state for internal tracking
     var selectedMessageId by remember { mutableStateOf<String?>(null) }
 
-    // Set initial selection to first message if available
+    // Get the 5 most recent message IDs
+    val recentMessageIds = remember(messages) {
+        messages.sortedByDescending { it.timestamp }
+            .take(5)
+            .map { it.id }
+            .toSet()
+    }
+
     LaunchedEffect(messages) {
         if (selectedMessageId == null && messages.isNotEmpty()) {
             selectedMessageId = messages.first().id
@@ -327,6 +334,7 @@ private fun ThreadedMessageList(
                 message = message,
                 indent = indent,
                 isSelected = message.id == selectedMessageId,
+                isRecent = message.id in recentMessageIds,
                 onMessageClick = {
                     selectedMessageId = it.id
                     onMessageSelected(it)
@@ -341,17 +349,20 @@ fun ThreadedMessage(
     message: Message,
     indent: Int = 0,
     isSelected: Boolean = false,
+    isRecent: Boolean = false,
     onMessageClick: (Message) -> Unit = {}
 ) {
+    val backgroundColor = when {
+        isSelected -> Color(0xFFA459D6).copy(alpha = 0.5f)
+        isRecent -> Color.Transparent
+        else -> Color.Transparent
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = (indent * 16).dp)
-            .background(
-                if (isSelected) Color(0xFFA459D6).copy(alpha = 0.5f) // MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-                else Color.Transparent
-            )
-            // Add clickable modifier
+            .background(backgroundColor)
             .clickable { onMessageClick(message) }
     ) {
         Row(
@@ -371,11 +382,11 @@ fun ThreadedMessage(
             Text(
                 text = message.content,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Normal,
+                fontWeight = if (isRecent) FontWeight.SemiBold else FontWeight.Normal,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Left,
                 maxLines = 1,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).alpha(if (isRecent) 0.95f else 0.75f)
             )
             Text(
                 text = message.author.globalName ?: message.author.username,
