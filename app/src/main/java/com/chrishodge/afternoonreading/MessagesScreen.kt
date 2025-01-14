@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,8 +57,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.chrishodge.afternoonreading.ui.theme.replylines
 import com.chrishodge.afternoonreading.ui.theme.tags
 import com.halilibo.richtext.markdown.Markdown
@@ -215,6 +218,17 @@ fun MessagesScreen(
                         markdown = selectedMessage?.content ?: "",
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    // Display attachments in detail view
+                    selectedMessage?.attachments?.let { attachments ->
+                        if (attachments.isNotEmpty()) {
+                            MessageAttachments(
+                                attachments = attachments,
+                                modifier = Modifier.fillMaxWidth(),
+                                maxHeight = 300.dp  // Larger for detail view
+                            )
+                        }
+                    }
 
                     // Display article embeds
                     selectedMessage?.embeds?.forEach { embed ->
@@ -495,6 +509,7 @@ fun ThreadedMessage(
         }
     }
 }
+
 // Basic implementation using compose-richtext library
 @Composable
 fun MarkdownText(
@@ -683,11 +698,25 @@ fun ArticleEmbed(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Thumbnail image
+            /*
             embed.thumbnail?.let { thumbnail ->
                 Image(
                     painter = painterResource(id = R.drawable.ic_placeholder_white_24pd),
                     contentDescription = "Article thumbnail",
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .size(64.dp)
+                        .padding(end = 8.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            */
+
+            // Thumbnail image using Coil
+            embed.thumbnail?.let { thumbnail ->
+                AsyncImage(
+                    model = thumbnail.url,
+                    contentDescription = "Article thumbnail",
                     modifier = Modifier
                         .size(64.dp)
                         .padding(end = 8.dp),
@@ -730,5 +759,59 @@ fun ArticleEmbed(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MessageAttachments(
+    attachments: List<Attachment>,
+    modifier: Modifier = Modifier,
+    maxHeight: Dp = 200.dp
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        attachments.forEach { attachment ->
+            when {
+                attachment.contentType?.startsWith("image/") == true -> {
+                    AsyncImage(
+                        model = attachment.url,
+                        contentDescription = attachment.filename,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = maxHeight)
+                            .padding(vertical = 4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+                else -> {
+                    // For non-image attachments, show filename and size
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "${attachment.filename} (${formatFileSize(attachment.size)})",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Helper function to format file size
+private fun formatFileSize(bytes: Int): String {
+    return when {
+        bytes < 1024 -> "$bytes B"
+        bytes < 1024 * 1024 -> "${bytes / 1024} KB"
+        else -> String.format("%.1f MB", bytes / (1024.0 * 1024.0))
     }
 }
