@@ -92,7 +92,6 @@ fun MessagesScreen(
         messageViewModel?.fetchMessages(channelId, 100, channelOp)
     }
 
-    // Add DisposableEffect
     DisposableEffect(Unit) {
         onDispose {
             messages = emptyList()

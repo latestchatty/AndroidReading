@@ -184,16 +184,21 @@ class MessageViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                delay(1000) // Delays for 1 second (1000ms)
+                delay(1000)
                 val result = discordApi.getMessages(channelId, limit)
-                // Append op as first item if it exists and isn't already in the list
-                _messages.value = op?.let { originalPost ->
-                    if (result.none { it.id == originalPost.id }) {
-                        listOf(originalPost) + result
-                    } else {
-                        result
-                    }
+
+                // Filter result to remove op if it exists in the API response
+                val filteredResult = op?.let { originalPost ->
+                    result.filter { it.id != originalPost.id }
                 } ?: result
+
+                // Create sorted messages with op first
+                val sortedMessages = when {
+                    op != null -> listOf(op) + filteredResult.sortedBy { it.timestamp }
+                    else -> filteredResult.sortedBy { it.timestamp }
+                }
+
+                _messages.value = sortedMessages
                 println("Messages received: ${result.size}")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Unknown error occurred"
@@ -246,4 +251,36 @@ class MessageViewModel : ViewModel() {
             _isLoading.value = false
         }
     }
+}
+
+data class MessageThread(
+    val message: Message,
+    val replies: List<MessageThread> = emptyList()
+)
+
+fun buildMessageThreads(messages: List<Message>): List<MessageThread> {
+    val messageMap = messages.associateBy { it.id }
+    val childrenMap = mutableMapOf<String, MutableList<Message>>()
+
+    // Group messages by their parent ID
+    messages.forEach { message ->
+        message.messageReference?.messageId?.let { parentId ->
+            childrenMap.getOrPut(parentId) { mutableListOf() }.add(message)
+        }
+    }
+
+    // Recursive function to build thread structure
+    fun buildThread(message: Message): MessageThread {
+        val replies = childrenMap[message.id] ?: emptyList()
+        return MessageThread(
+            message = message,
+            replies = replies.map { buildThread(it) }.sortedBy { it.message.timestamp }
+        )
+    }
+
+    // Build threads for top-level messages
+    return messages
+        .filter { it.messageReference == null }
+        .map { buildThread(it) }
+        .sortedBy { it.message.timestamp }
 }
