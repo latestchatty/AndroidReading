@@ -44,11 +44,6 @@ class MainViewModel(
         preferencesManager.saveString("user_token", newToken)
     }
 
-    fun clearUserToken() {
-        _userToken.value = ""
-        preferencesManager.saveString("user_token", "")
-    }
-
     private val _channelId = mutableStateOf("0")
     val channelId: State<String> = _channelId
 

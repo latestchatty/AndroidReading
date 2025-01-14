@@ -188,11 +188,7 @@ fun SharedForm(
         Button(
             onClick = {
                 onSubmit(formState)
-                if (formState.userToken.isNotBlank()) {
-                    mainViewModel.updateUserToken(formState.userToken)
-                } else {
-                    mainViewModel.clearUserToken()
-                }
+                mainViewModel.updateUserToken(formState.userToken)
                 Toast.makeText(context, "Settings Saved", Toast.LENGTH_SHORT).show()
                       },
             enabled = formState.isValid,
