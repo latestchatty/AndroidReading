@@ -1,6 +1,7 @@
 package com.chrishodge.afternoonreading.ui
 
 //noinspection UsingMaterialAndMaterial3Libraries
+
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -21,7 +22,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import com.chrishodge.afternoonreading.BuildConfig
 import com.chrishodge.afternoonreading.MainViewModel
 import com.chrishodge.afternoonreading.MessagesScreen
@@ -30,12 +33,6 @@ import com.chrishodge.afternoonreading.ThreadsScreen
 import com.chrishodge.afternoonreading.ThreadsViewModel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
-import androidx.compose.foundation.gestures.horizontalDrag
-import androidx.compose.ui.input.pointer.positionChange
-import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 
 @Composable
@@ -133,6 +130,8 @@ fun ChatScreen(viewModel: MainViewModel) {
                                     } else if (!dragStarted) {
                                         // This was a tap/click
                                         // Handle your click event here
+                                    } else {
+                                        // Hmm..,
                                     }
                                 }
                             }
