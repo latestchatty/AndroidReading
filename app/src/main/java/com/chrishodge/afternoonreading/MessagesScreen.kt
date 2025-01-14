@@ -891,13 +891,11 @@ private fun GroupedReactions(
             ) {
                 customEmojis.forEach { reaction ->
                     reaction.emoji.id?.let { emojiId ->
-                        postTagColors[emojiId]?.let { color ->
-                            TagReactionChip(
-                                color = color,
-                                count = reaction.count,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                        }
+                        TagReactionChip(
+                            emojiId = emojiId,
+                            count = reaction.count,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
                     }
                 }
             }
@@ -940,7 +938,7 @@ private fun ReactionChip(
 
 @Composable
 private fun TagReactionChip(
-    color: Color,
+    emojiId: String,
     count: Int,
     modifier: Modifier = Modifier
 ) {
@@ -956,11 +954,12 @@ private fun TagReactionChip(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "A",
-                fontFamily = tags,
-                fontSize = 10.sp,
-                color = color
+            // Load emoji image from Discord CDN
+            AsyncImage(
+                model = "https://cdn.discordapp.com/emojis/$emojiId.png?size=32",
+                contentDescription = "Tag emoji",
+                modifier = Modifier.size(32.dp),
+                contentScale = ContentScale.Fit
             )
             Text(
                 text = " $count",

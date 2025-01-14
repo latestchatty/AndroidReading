@@ -33,7 +33,7 @@ class ThreadsViewModel(
 
                 // First get threads and show them immediately
                 val response = threadsClient.getThreads(apiUrl)
-                val initialThreads = response.threads.filter { it.parentId == forumId } .take(30)
+                val initialThreads = response.threads.filter { it.parentId == forumId }.take(99)
                 _uiState.value = ThreadsUiState.Success(initialThreads)
 
                 // Then update authors one by one
