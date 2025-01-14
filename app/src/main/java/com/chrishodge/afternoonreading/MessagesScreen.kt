@@ -181,6 +181,29 @@ fun MessagesScreen(
                         )
                     }
 
+                    // Display standard emoji names
+                    selectedMessage?.reactions?.let { reactions ->
+                        val standardEmojis = reactions.filter { it.emoji.id == null }
+                        if (standardEmojis.isNotEmpty()) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp, bottom = 8.dp),
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                standardEmojis.forEach { reaction ->
+                                    Text(
+                                        text = reaction.emoji.name,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     if (selectedMessage?.id == channelId) {
                         SimpleMarkdownText(
                             markdown = channelName,
