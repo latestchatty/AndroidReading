@@ -283,7 +283,6 @@ fun MessagesScreen(
                         IconButton(onClick = {
                             messages = emptyList()
                             messageViewModel?.clearMessages()
-                            selectedMessage = channelOp as? Message
                             messageViewModel?.fetchMessages(channelId, 100, channelOp)
                         }) {
                             Icon(
