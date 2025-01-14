@@ -80,7 +80,7 @@ fun MessagesScreen(
     val messageContentScrollState = rememberScrollState()
     val messageListScrollState = rememberScrollState()
 
-    val messages = messageViewModel?.messages?.value ?: emptyList()
+    var messages = messageViewModel?.messages?.value ?: emptyList()
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -124,7 +124,10 @@ fun MessagesScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { mainViewModel.setChannel(thread = null) }) {
+                    IconButton(onClick = {
+                        mainViewModel.setChannel(thread = null)
+                        messages = emptyList()
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"

@@ -115,6 +115,7 @@ class MainViewModel(
         println("navigateToThreadsScreen")
         _channelId.value = "0"
         _channelName.value = ""
+        _channelOP.value = null
     }
 }
 
