@@ -91,6 +91,7 @@ fun MessagesScreen(
     val messageContentScrollState = rememberScrollState()
     val messageListScrollState = rememberScrollState()
     var messages = messageViewModel?.messages?.value ?: emptyList()
+    val userToken by mainViewModel.userToken.collectAsState(initial = "")
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -303,24 +304,26 @@ fun MessagesScreen(
                         )
                     }
 
-                    IconButton(onClick = { }) {
-                        Image(
-                            painterResource(R.drawable.ic_tag_white_24dp),
-                            contentDescription = "Tag",
-                            contentScale = ContentScale.FillHeight,
-                            modifier = Modifier.fillMaxHeight(),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                        )
-                    }
+                    if (userToken.isNotEmpty()) {
+                        IconButton(onClick = { }) {
+                            Image(
+                                painterResource(R.drawable.ic_tag_white_24dp),
+                                contentDescription = "Tag",
+                                contentScale = ContentScale.FillHeight,
+                                modifier = Modifier.fillMaxHeight(),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                        }
 
-                    IconButton(onClick = { }) {
-                        Image(
-                            painterResource(R.drawable.ic_reply_white_24dp),
-                            contentDescription = "Reply",
-                            contentScale = ContentScale.FillHeight,
-                            modifier = Modifier.fillMaxHeight(),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                        )
+                        IconButton(onClick = { }) {
+                            Image(
+                                painterResource(R.drawable.ic_reply_white_24dp),
+                                contentDescription = "Reply",
+                                contentScale = ContentScale.FillHeight,
+                                modifier = Modifier.fillMaxHeight(),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                            )
+                        }
                     }
                 }
             }
