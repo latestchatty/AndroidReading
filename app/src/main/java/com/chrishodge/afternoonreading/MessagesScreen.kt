@@ -2,6 +2,7 @@ package com.chrishodge.afternoonreading
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,17 +24,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.DropdownMenu
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -296,12 +301,10 @@ fun MessagesScreen(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    IconButton(onClick = { }) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "More options",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                    Box() {
+                        selectedMessage?.let {
+                            MoreDropdownMenu(message = it, mainViewModel = mainViewModel)
+                        }
                     }
 
                     if (userToken.isNotEmpty()) {
@@ -968,5 +971,90 @@ private fun TagReactionChip(
                 modifier = Modifier.padding(start = 4.dp)
             )
         }
+    }
+}
+
+@Composable
+fun MoreDropdownMenu(message: Message, mainViewModel: MainViewModel) {
+    var expanded by remember { mutableStateOf(false) }
+    var showHideDialog by remember { mutableStateOf(false) }
+    var showReportDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    if (showHideDialog) {
+        AlertDialog(
+            onDismissRequest = { showHideDialog = false },
+            title = { Text("Block User") },
+            text = { Text("Are you sure you want to block this user?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    // mainViewModel.addHiddenId(thread.id)
+                    showHideDialog = false
+                    expanded = false
+                }) {
+                    Text("Block")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showHideDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showReportDialog) {
+        AlertDialog(
+            onDismissRequest = { showReportDialog = false },
+            title = { Text("Report") },
+            text = { Text("Are you sure you want to report this content?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    // mainViewModel.reportThread(thread.id)
+                    Toast.makeText(context, "Content Reported!", Toast.LENGTH_SHORT).show()
+                    showReportDialog = false
+                    expanded = false
+                }) {
+                    Text("Report")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReportDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+
+    IconButton(onClick = { expanded = !expanded }) {
+        Icon(
+            Icons.Default.MoreVert,
+            contentDescription = "More options",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false },
+        modifier = Modifier.background(
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        DropdownMenuItem(
+            text = { Text("Block User", color = MaterialTheme.colorScheme.primary) },
+            onClick = {
+                showHideDialog = true
+//                mainViewModel.addHiddenId(id = thread.id)
+//                expanded = false
+            }
+        )
+        DropdownMenuItem(
+            text = { Text("Report", color = MaterialTheme.colorScheme.primary) },
+            onClick = {
+                showReportDialog = true
+            }
+        )
     }
 }
