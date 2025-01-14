@@ -265,12 +265,10 @@ private fun ThreadedMessageList(
     messages: List<Message>,
     modifier: Modifier = Modifier
 ) {
-    // Create a map for threaded messages
     val threadMap = remember(messages) {
         messages.groupBy { it.messageReference?.messageId }
     }
 
-    // Helper function to recursively build thread
     fun buildThreadItems(
         parentId: String?,
         indent: Int,
@@ -284,7 +282,6 @@ private fun ThreadedMessageList(
         } ?: emptyList()
     }
 
-    // Start with top-level messages (no references)
     val processedIds = mutableSetOf<String>()
     val threadedMessages = messages
         .filter { it.messageReference == null }
@@ -296,10 +293,11 @@ private fun ThreadedMessageList(
         }
 
     LazyColumn(
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(0.dp), // Set to 0.dp
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
+        verticalArrangement = Arrangement.Top // Add this to remove default spacing
     ) {
         items(
             items = threadedMessages,
@@ -314,7 +312,6 @@ private fun ThreadedMessageList(
     }
 }
 
-// First, let's create a composable for threaded messages
 @Composable
 fun ThreadedMessage(
     message: Message,
@@ -329,7 +326,7 @@ fun ThreadedMessage(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 0.dp), // Change this from 4.dp to 0.dp
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (indent > 0) {
