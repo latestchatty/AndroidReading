@@ -143,7 +143,7 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Filter out threads with hidden IDs
-        items(threads.filter { thread -> !hiddenIds.contains(thread.id) } .sortedByDescending { it.lastMessageId?.toLongOrNull() ?: 0L } ) { thread ->
+        items(threads.filter { thread -> !hiddenIds.contains(thread.id) }) { thread ->
             ThreadCard(thread = thread, mainViewModel)
         }
     }

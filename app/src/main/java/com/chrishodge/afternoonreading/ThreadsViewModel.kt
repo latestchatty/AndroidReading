@@ -33,9 +33,8 @@ class ThreadsViewModel(
 
                 // First get threads and show them immediately
                 val response = threadsClient.getThreads(apiUrl)
-                val initialThreads = response.threads.filter { it.parentId == forumId }
+                val initialThreads = response.threads.filter { it.parentId == forumId }.sortedByDescending { it.lastMessageId?.toLongOrNull() ?: 0L }
                 _uiState.value = ThreadsUiState.Success(initialThreads)
-
                 // Then update authors one by one
                 val processedThreads = initialThreads.toMutableList()
                 initialThreads.forEachIndexed { index, thread ->
@@ -54,7 +53,7 @@ class ThreadsViewModel(
                             // Emit updated list after each thread is processed
                             _uiState.value = ThreadsUiState.Success(processedThreads.toList())
                         } else {
-                            // Update the thread with author info
+                            // Update the thread with author info (nothing in this case)
                             processedThreads[index] = thread.copy()
                             // Emit updated list after each thread is processed
                             _uiState.value = ThreadsUiState.Success(processedThreads.toList())
