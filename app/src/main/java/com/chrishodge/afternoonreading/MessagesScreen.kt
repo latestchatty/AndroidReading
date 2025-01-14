@@ -287,8 +287,8 @@ fun MessagesScreen(
                         )
                     } else {
                         IconButton(onClick = {
-                            messages = emptyList()
-                            messageViewModel?.clearMessages()
+                            //messages = emptyList()
+                            //messageViewModel?.clearMessages()
                             messageViewModel?.fetchMessages(channelId, 100, channelOp)
                         }) {
                             Icon(

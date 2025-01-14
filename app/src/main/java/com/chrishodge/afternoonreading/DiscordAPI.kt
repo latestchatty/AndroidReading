@@ -23,6 +23,13 @@ interface DiscordApi {
         @Path("messageId") messageId: String
     ): Message
 
+    @GET("channels/{channelId}/messages")
+    suspend fun getMessagesAfter(
+        @Path("channelId") channelId: String,
+        @Query("limit") limit: Int,
+        @Query("after") after: String
+    ): List<Message>
+
     companion object {
         fun create(): DiscordApi {
             val json = Json {

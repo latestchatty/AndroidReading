@@ -185,21 +185,43 @@ class MessageViewModel : ViewModel() {
             _error.value = null
             try {
                 delay(1000)
-                val result = discordApi.getMessages(channelId, limit)
+                var newMessages: List<Message> = emptyList()
 
-                // Filter result to remove op if it exists in the API response
-                val filteredResult = op?.let { originalPost ->
-                    result.filter { it.id != originalPost.id }
-                } ?: result
+                // Create a set of existing message IDs for efficient lookup
+                val existingMessageIds = _messages.value.map { it.id }.toSet()
 
-                // Create sorted messages with op first
-                val sortedMessages = when {
-                    op != null -> listOf(op) + filteredResult.sortedBy { it.timestamp }
-                    else -> filteredResult.sortedBy { it.timestamp }
+                if (existingMessageIds.size > 0) {
+                    newMessages = discordApi.getMessagesAfter(
+                        channelId = channelId,
+                        limit = 100,
+                        after = _messages.value.last().id
+                    )
+                } else {
+                    newMessages = discordApi.getMessages(channelId, limit)
                 }
 
-                _messages.value = sortedMessages
-                println("Messages received: ${result.size}")
+                // Filter out duplicates and OP from new messages
+                val uniqueNewMessages = newMessages.filter { message ->
+                    !existingMessageIds.contains(message.id) &&
+                            (op == null || message.id != op.id)
+                }
+
+                // Combine existing messages with new messages
+                val combinedMessages = when {
+                    op != null -> {
+                        if (_messages.value.isEmpty()) {
+                            listOf(op) + uniqueNewMessages
+                        } else {
+                            _messages.value + uniqueNewMessages
+                        }
+                    }
+                    else -> _messages.value + uniqueNewMessages
+                }
+
+                // Sort all messages by timestamp
+                _messages.value = combinedMessages.sortedBy { it.timestamp }
+                println("New messages received: ${uniqueNewMessages.size}")
+                println("Total messages: ${_messages.value.size}")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Unknown error occurred"
                 println("Error occurred: ${e.message}")
@@ -241,7 +263,7 @@ class MessageViewModel : ViewModel() {
             val result = discordApi.getMessage(channelId, messageId)
             _message.value = result
             println("Message received: $result")
-            result  // Return the message
+            result
         } catch (e: Exception) {
             _error.value = e.message ?: "Unknown error occurred"
             println("Error occurred: ${e.message}")
