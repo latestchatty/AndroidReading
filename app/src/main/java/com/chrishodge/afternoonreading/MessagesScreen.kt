@@ -180,10 +180,12 @@ fun MessagesScreen(
                         )
                     }
 
-                    SimpleMarkdownText(
-                        markdown = channelName,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    if (selectedMessage?.id == channelId) {
+                        SimpleMarkdownText(
+                            markdown = channelName,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
                     EnhancedMarkdownText(
                         markdown = selectedMessage?.content ?: "",
@@ -255,7 +257,11 @@ fun MessagesScreen(
             // Messages list section
             ThreadedMessageList(
                 messages = messages,
-                modifier = Modifier.weight(0.6f)
+                modifier = Modifier.weight(0.6f),
+                selectedMessage = selectedMessage,
+                onMessageSelected = { message ->
+                    selectedMessage = message
+                }
             )
         }
     }
@@ -264,15 +270,18 @@ fun MessagesScreen(
 @Composable
 private fun ThreadedMessageList(
     messages: List<Message>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedMessage: Message?,
+    onMessageSelected: (Message) -> Unit
 ) {
-    // Add selected message state
+    // Add selected message state for internal tracking
     var selectedMessageId by remember { mutableStateOf<String?>(null) }
 
     // Set initial selection to first message if available
     LaunchedEffect(messages) {
         if (selectedMessageId == null && messages.isNotEmpty()) {
             selectedMessageId = messages.first().id
+            onMessageSelected(messages.first())
         }
     }
 
@@ -318,7 +327,10 @@ private fun ThreadedMessageList(
                 message = message,
                 indent = indent,
                 isSelected = message.id == selectedMessageId,
-                onMessageClick = { selectedMessageId = it.id }
+                onMessageClick = {
+                    selectedMessageId = it.id
+                    onMessageSelected(it)
+                }
             )
         }
     }
