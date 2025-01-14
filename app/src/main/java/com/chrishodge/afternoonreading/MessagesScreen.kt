@@ -215,6 +215,18 @@ fun MessagesScreen(
                         markdown = selectedMessage?.content ?: "",
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    // Display article embeds
+                    selectedMessage?.embeds?.forEach { embed ->
+                        if (embed.type == "article") {
+                            ArticleEmbed(
+                                embed = embed,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp)
+                            )
+                        }
+                    }
                 }
             }
 
@@ -652,4 +664,71 @@ fun EnhancedMarkdownText(
         text = text.toString(),
         modifier = modifier
     )
+}
+
+@Composable
+fun ArticleEmbed(
+    embed: Embed,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color.Gray.copy(alpha = 0.1f))
+            .padding(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Thumbnail image
+            embed.thumbnail?.let { thumbnail ->
+                Image(
+                    painter = painterResource(id = R.drawable.ic_placeholder_white_24pd),
+                    contentDescription = "Article thumbnail",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .size(64.dp)
+                        .padding(end = 8.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            // Article content
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                embed.title?.let { title ->
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                embed.description?.let { description ->
+                    Text(
+                        text = description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.LightGray.copy(alpha = 0.7f),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+                embed.provider?.name?.let { providerName ->
+                    Text(
+                        text = providerName,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.LightGray.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
+    }
 }
