@@ -214,19 +214,12 @@ fun MessagesScreen(
                         }
                     }
 
-                    // Display reactions and colored tags
-                    selectedMessage?.reactions?.forEach { reaction ->
-                        reaction.emoji.id?.let { emojiId ->
-                            postTagColors[emojiId]?.let { color ->
-                                Text(
-                                    "A",
-                                    fontFamily = tags,
-                                    fontSize = 10.sp,
-                                    color = color,
-                                    modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-                                )
-                            }
-                        }
+                    // Display supported reactions
+                    selectedMessage?.reactions?.let { reactions ->
+                        GroupedReactions(
+                            reactions = reactions,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
 
                     if (selectedMessage?.id == channelId) {
@@ -846,5 +839,125 @@ private fun formatFileSize(bytes: Int): String {
         bytes < 1024 -> "$bytes B"
         bytes < 1024 * 1024 -> "${bytes / 1024} KB"
         else -> String.format("%.1f MB", bytes / (1024.0 * 1024.0))
+    }
+}
+
+@Composable
+private fun GroupedReactions(
+    reactions: List<Reaction>,
+    modifier: Modifier = Modifier
+) {
+    // Group reactions by type (standard vs custom)
+    val standardEmojis = reactions.filter { it.emoji.id == null }
+    val customEmojis = reactions.filter { it.emoji.id != null }
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        // Standard emojis
+        if (standardEmojis.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                standardEmojis.forEach { reaction ->
+                    ReactionChip(
+                        emoji = reaction.emoji.name,
+                        count = reaction.count,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                }
+            }
+        }
+
+        // Custom tag emojis
+        if (customEmojis.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                customEmojis.forEach { reaction ->
+                    reaction.emoji.id?.let { emojiId ->
+                        postTagColors[emojiId]?.let { color ->
+                            TagReactionChip(
+                                color = color,
+                                count = reaction.count,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReactionChip(
+    emoji: String,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                shape = MaterialTheme.shapes.small
+            )
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = emoji,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = " $count",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun TagReactionChip(
+    color: Color,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                shape = MaterialTheme.shapes.small
+            )
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "A",
+                fontFamily = tags,
+                fontSize = 10.sp,
+                color = color
+            )
+            Text(
+                text = " $count",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
     }
 }
