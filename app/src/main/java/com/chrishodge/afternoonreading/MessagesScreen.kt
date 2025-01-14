@@ -280,7 +280,12 @@ fun MessagesScreen(
                                 .padding(start = 6.dp)
                         )
                     } else {
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = {
+                            messages = emptyList()
+                            messageViewModel?.clearMessages()
+                            selectedMessage = channelOp as? Message
+                            messageViewModel?.fetchMessages(channelId, 100, channelOp)
+                        }) {
                             Icon(
                                 Icons.Default.Refresh,
                                 contentDescription = "Refresh",
