@@ -277,12 +277,12 @@ private fun ThreadedMessageList(
 ) {
     var selectedMessageId by remember { mutableStateOf<String?>(null) }
 
-    // Get the 5 most recent message IDs
+    // Get the 5 most recent message IDs as an ordered list
     val recentMessageIds = remember(messages) {
         messages.sortedByDescending { it.timestamp }
             .take(5)
-            .map { it.id }
-            .toSet()
+            .mapIndexed { index, message -> message.id to index }
+            .toMap()
     }
 
     LaunchedEffect(messages) {
@@ -334,7 +334,7 @@ private fun ThreadedMessageList(
                 message = message,
                 indent = indent,
                 isSelected = message.id == selectedMessageId,
-                isRecent = message.id in recentMessageIds,
+                recentIndex = recentMessageIds[message.id],
                 onMessageClick = {
                     selectedMessageId = it.id
                     onMessageSelected(it)
@@ -349,13 +349,27 @@ fun ThreadedMessage(
     message: Message,
     indent: Int = 0,
     isSelected: Boolean = false,
-    isRecent: Boolean = false,
+    recentIndex: Int? = null,
     onMessageClick: (Message) -> Unit = {}
 ) {
+    // Define opacity levels for the 5 most recent messages (from most to least recent)
+    val recentOpacities = listOf(0.5f, 0.4f, 0.3f, 0.2f, 0.1f)
+
     val backgroundColor = when {
         isSelected -> Color(0xFFA459D6).copy(alpha = 0.5f)
-        isRecent -> Color.Transparent
+        recentIndex != null -> Color.Transparent // .colorScheme.primary.copy(
+        //    alpha = recentOpacities[recentIndex]
+        //)
         else -> Color.Transparent
+    }
+
+    val textOpacity = when (recentIndex) {
+        0 -> 1f    // Most recent
+        1 -> 0.95f
+        2 -> 0.9f
+        3 -> 0.85f
+        4 -> 0.8f
+        else -> 0.75f  // Not recent
     }
 
     Column(
@@ -382,11 +396,13 @@ fun ThreadedMessage(
             Text(
                 text = message.content,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (isRecent) FontWeight.SemiBold else FontWeight.Normal,
+                fontWeight = if (recentIndex != null) FontWeight.SemiBold else FontWeight.Normal,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Left,
                 maxLines = 1,
-                modifier = Modifier.weight(1f).alpha(if (isRecent) 0.95f else 0.75f)
+                modifier = Modifier
+                    .weight(1f)
+                    .alpha(textOpacity)
             )
             Text(
                 text = message.author.globalName ?: message.author.username,
@@ -396,6 +412,15 @@ fun ThreadedMessage(
                 textAlign = TextAlign.Right,
                 maxLines = 1
             )
+            if (recentIndex != null) {
+                Text(
+                    "${recentIndex + 1}",
+                    fontFamily = tags,
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = recentOpacities[recentIndex]),
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
             Text("A", fontFamily = tags, fontSize = 10.sp, color = Color.Red)
         }
     }
