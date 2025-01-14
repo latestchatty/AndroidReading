@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -178,13 +179,21 @@ class MessageViewModel : ViewModel() {
     private var _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
 
-    fun fetchMessages(channelId: String, limit: Int = 100) {
+    fun fetchMessages(channelId: String, limit: Int = 100, op: Message? = null) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
+                delay(1000) // Delays for 1 second (1000ms)
                 val result = discordApi.getMessages(channelId, limit)
-                _messages.value = result
+                // Append op as first item if it exists and isn't already in the list
+                _messages.value = op?.let { originalPost ->
+                    if (result.none { it.id == originalPost.id }) {
+                        listOf(originalPost) + result
+                    } else {
+                        result
+                    }
+                } ?: result
                 println("Messages received: ${result.size}")
             } catch (e: Exception) {
                 _error.value = e.message ?: "Unknown error occurred"
