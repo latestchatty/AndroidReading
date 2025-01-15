@@ -247,6 +247,7 @@ data class NewMessage(
 
 class MessageViewModel : ViewModel() {
     private val discordApi = DiscordApi.create()
+
     private var _message = mutableStateOf<Message?>(null)
     val message: State<Message?> = _message
 
@@ -260,7 +261,7 @@ class MessageViewModel : ViewModel() {
     val isLoading: State<Boolean> = _isLoading
 
     // Add the submitReply function here
-    suspend fun submitReply(messageId: String, channelId: String, messageContent: String, primaryGuildId: String) {
+    suspend fun submitReply(messageId: String, channelId: String, messageContent: String, primaryGuildId: String, userToken: String?) {
         try {
             val allowedMentions = AllowedMentions(
                 parse = listOf(
@@ -292,7 +293,8 @@ class MessageViewModel : ViewModel() {
 
             val response = discordApi.createMessage(
                 channelId = channelId,
-                message = newMessage
+                message = newMessage,
+                authorization = if (userToken != null) "$userToken" else "na"
             )
 
             println("Posted to forum and got response: $response")

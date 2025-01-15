@@ -35,11 +35,12 @@ interface DiscordApi {
     @POST("channels/{channelId}/messages")
     suspend fun createMessage(
         @Path("channelId") channelId: String,
-        @Body message: NewMessage
+        @Body message: NewMessage,
+        @retrofit2.http.Header("Authorization") authorization: String? = null
     ): Message
 
     companion object {
-        fun create(): DiscordApi {
+        fun create(userToken: String? = null): DiscordApi {
             val json = Json {
                 ignoreUnknownKeys = true
                 coerceInputValues = true
@@ -50,13 +51,23 @@ interface DiscordApi {
                 .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
                 .client(
                     OkHttpClient.Builder()
-                    .addInterceptor { chain ->
-                        val request = chain.request().newBuilder()
-                            .addHeader("Authorization", "Bot $apiKey")
-                            .build()
-                        chain.proceed(request)
-                    }
-                    .build())
+                        .addInterceptor { chain ->
+                            val originalRequest = chain.request()
+                            val authHeader = originalRequest.header("Authorization")
+
+                            // Use the provided auth header if it exists, otherwise use the bot token
+                            val finalAuthHeader = when {
+                                !authHeader.isNullOrEmpty() -> authHeader
+                                !userToken.isNullOrEmpty() -> "Bearer $userToken"
+                                else -> "Bot $apiKey"
+                            }
+
+                            val request = originalRequest.newBuilder()
+                                .header("Authorization", finalAuthHeader)
+                                .build()
+                            chain.proceed(request)
+                        }
+                        .build())
                 .build()
                 .create(DiscordApi::class.java)
         }
