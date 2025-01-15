@@ -238,7 +238,7 @@ fun SharedForm(
         }
 
         Text(
-            text = "Version 1.0 (b9)",
+            text = "Version ${BuildConfig.VERSION_NAME} (b${BuildConfig.VERSION_CODE})",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = colorResource(id = R.color.orange),
