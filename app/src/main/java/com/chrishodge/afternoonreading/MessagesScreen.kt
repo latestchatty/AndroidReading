@@ -64,6 +64,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
@@ -174,10 +175,15 @@ fun MessagesScreen(
             )
         }
     ) { paddingValues ->
+        val layoutScope = rememberCoroutineScope()
+        var layoutHeight by remember { mutableFloatStateOf(0f) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .onSizeChanged {
+                    layoutHeight = it.height.toFloat()
+                }
         ) {
             // Top section (message content)
             Box(
@@ -266,8 +272,11 @@ fun MessagesScreen(
                     .draggable(
                         orientation = Orientation.Vertical,
                         state = rememberDraggableState { delta ->
-                            // Calculate new ratio based on drag delta
-                            val newRatio = splitRatio + (delta / 1000f)
+                            // Get total height from LocalDensity
+                            val totalHeight = layoutHeight
+                            // Convert delta to ratio
+                            val ratioChange = delta / totalHeight
+                            val newRatio = splitRatio + ratioChange
                             // Clamp the ratio between 0.2 and 0.8 (20% - 80%)
                             splitRatio = newRatio.coerceIn(0.2f, 0.8f)
                         }
