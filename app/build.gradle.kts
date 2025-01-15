@@ -6,8 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.appdistribution")
 }
 
 android {
@@ -100,8 +98,6 @@ dependencies {
     implementation("com.halilibo.compose-richtext:richtext-ui-material:0.17.0")
 
     implementation("io.coil-kt:coil-gif:2.5.0")
-
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
     // For Android ViewModel and LiveData
     //implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
