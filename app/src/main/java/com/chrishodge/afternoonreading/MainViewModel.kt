@@ -129,8 +129,14 @@ class MainViewModel(
 
     // Call this when saving settings
     fun updateFromSettings(formState: FormState) {
-        setGuildId(formState.guildId)
-        updateUserToken(formState.userToken)
+        _guildId.value = formState.guildId
+        _forumId.value = formState.forumId
+        _userToken.value = formState.userToken
+        messageViewModel.value?.let { viewModel ->
+            viewModel.setGuildId(formState.guildId)
+            viewModel.setForumId(formState.forumId)
+            viewModel.setUserToken(formState.userToken)
+        }
     }
 }
 

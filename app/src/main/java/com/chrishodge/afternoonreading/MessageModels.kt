@@ -251,6 +251,12 @@ class MessageViewModel : ViewModel() {
     private var _guildId = mutableStateOf("na")
     val guildId: State<String> = _guildId
 
+    private var _forumId = mutableStateOf("0")
+    val forumId: State<String> = _forumId
+
+    private var _userToken = mutableStateOf("")
+    val userToken: State<String> = _userToken
+
     private var _message = mutableStateOf<Message?>(null)
     val message: State<Message?> = _message
 
@@ -265,6 +271,14 @@ class MessageViewModel : ViewModel() {
 
     fun setGuildId(newGuildId: String) {
         _guildId.value = newGuildId
+    }
+
+    fun setForumId(newForumId: String) {
+        _forumId.value = newForumId
+    }
+
+    fun setUserToken(newUserToken: String) {
+        _userToken.value = newUserToken
     }
 
     suspend fun submitReply(messageId: String, channelId: String, messageContent: String, userToken: String?) {
