@@ -1,20 +1,45 @@
 package com.chrishodge.afternoonreading.ui
 
+import android.graphics.Bitmap
+import android.webkit.ConsoleMessage
+import android.webkit.JavascriptInterface
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.chrishodge.afternoonreading.MainViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
+import android.view.ViewGroup
+import android.webkit.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import android.util.Log
+
+private const val TAG = "LoginWebView"
 
 @Composable
 fun AccountScreen(viewModel: MainViewModel) {
@@ -22,15 +47,156 @@ fun AccountScreen(viewModel: MainViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .wrapContentSize(Alignment.Center)
     ) {
-        Text(
-            text = "Account",
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center,
-            fontSize = 25.sp
+        val webViewModel = remember { LoginWebViewModel() }
+        LoginWebView(
+            viewModel = webViewModel,
+            shrink = false,
+            shrunkShowingQR = false
         )
+    }
+}
+
+class LoginWebViewModel : ViewModel() {
+    private val _link = MutableStateFlow("https://discord.com/login")
+    val link: StateFlow<String> = _link.asStateFlow()
+
+    private val _didFinishLoading = MutableStateFlow(false)
+    val didFinishLoading: StateFlow<Boolean> = _didFinishLoading.asStateFlow()
+
+    private val _token = MutableStateFlow<String?>(null)
+    val token: StateFlow<String?> = _token.asStateFlow()
+
+    private val _pageTitle = MutableStateFlow("")
+    val pageTitle: StateFlow<String> = _pageTitle.asStateFlow()
+
+    fun updateToken(newToken: String?) {
+        viewModelScope.launch {
+            _token.emit(newToken)
+            Log.d(TAG, "Token updated: ${newToken?.take(10)}...")
+        }
+    }
+
+    fun updatePageTitle(title: String) {
+        viewModelScope.launch {
+            _pageTitle.emit(title)
+            Log.d(TAG, "Page title updated: $title")
+        }
+    }
+
+    fun updateLoadingState(isLoading: Boolean) {
+        viewModelScope.launch {
+            _didFinishLoading.emit(isLoading)
+            Log.d(TAG, "Loading state updated: $isLoading")
+        }
+    }
+}
+
+@Composable
+fun LoginWebView(
+    viewModel: LoginWebViewModel,
+    shrink: Boolean,
+    shrunkShowingQR: Boolean
+) {
+    val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        onDispose {
+            Log.d(TAG, "LoginWebView disposed")
+        }
+    }
+
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = { context ->
+            WebView(context).apply {
+                Log.d(TAG, "Creating new WebView instance")
+
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+
+                settings.apply {
+                    javaScriptEnabled = true
+                    domStorageEnabled = true
+                    databaseEnabled = true
+                    loadsImagesAutomatically = true
+                    setSupportMultipleWindows(true)
+                    javaScriptCanOpenWindowsAutomatically = true
+                    Log.d(TAG, "WebView settings configured")
+                }
+
+                webViewClient = object : WebViewClient() {
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                        super.onPageStarted(view, url, favicon)
+                        Log.d(TAG, "Page load started: $url")
+                        viewModel.updateLoadingState(false)
+                    }
+
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        super.onPageFinished(view, url)
+                        Log.d(TAG, "Page load finished: $url")
+                        view?.title?.let { viewModel.updatePageTitle(it) }
+                        viewModel.updateLoadingState(true)
+                    }
+
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        super.onReceivedError(view, request, error)
+                        Log.e(TAG, "WebView Error: ${error?.description}, Error Code: ${error?.errorCode}")
+                    }
+
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): Boolean {
+                        val url = request?.url?.toString()
+                        Log.d(TAG, "Attempting to load URL: $url")
+                        return if (url == viewModel.link.value || url?.contains("newassets.hcaptcha.com") == true) {
+                            false // Let the WebView handle the URL
+                        } else {
+                            Log.d(TAG, "Blocked URL loading: $url")
+                            true // Block the URL from loading
+                        }
+                    }
+                }
+
+                webChromeClient = object : WebChromeClient() {
+                    override fun onConsoleMessage(message: ConsoleMessage): Boolean {
+                        Log.d(TAG, "WebView Console: ${message.message()}")
+                        return true
+                    }
+
+                    override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                        Log.d(TAG, "Loading progress: $newProgress%")
+                        super.onProgressChanged(view, newProgress)
+                    }
+                }
+
+                addJavascriptInterface(
+                    WebViewJavaScriptInterface(viewModel),
+                    "AndroidInterface"
+                )
+
+                Log.d(TAG, "Starting to load URL: ${viewModel.link.value}")
+                loadUrl(viewModel.link.value)
+            }
+        },
+        update = { webView ->
+            Log.d(TAG, "WebView update callback triggered")
+            // Handle any updates if needed
+        }
+    )
+}
+
+class WebViewJavaScriptInterface(private val viewModel: LoginWebViewModel) {
+    @JavascriptInterface
+    fun onTokenReceived(token: String) {
+        Log.d(TAG, "Token received from JavaScript")
+        viewModel.updateToken(token)
     }
 }
