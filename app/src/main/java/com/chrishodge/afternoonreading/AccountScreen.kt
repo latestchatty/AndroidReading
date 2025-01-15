@@ -1,20 +1,22 @@
 package com.chrishodge.afternoonreading.ui
 
 import android.graphics.Bitmap
+import android.util.Log
+import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -25,19 +27,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-import android.view.ViewGroup
-import android.webkit.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import android.util.Log
 
 private const val TAG = "LoginWebView"
 
@@ -182,6 +171,98 @@ fun LoginWebView(
                     "AndroidInterface"
                 )
 
+                // Inject the custom JavaScript
+                val js = """
+                    // Clear localStorage
+                    localStorage.clear();
+                    
+                    // Keep original references
+                    let originalLocalStorage = localStorage;
+                    let originalConsoleLog = console.log;
+                    
+                    // Delete window localStorage
+                    delete window.localStorage;
+                    
+                    // Logging function
+                    const log = (operation, message) => {
+                        originalConsoleLog('%c[LocalStorage Shim]%c', 'color:green;font-weight:700', '', operation, message);
+                    };
+                    
+                    // Storage operations
+                    const setItem = (key, value) => {
+                        log('SET', key + ' <- ' + value);
+                        if (key === 'token') {
+                            AndroidInterface.onTokenReceived(JSON.parse(value));
+                        }
+                        originalLocalStorage[key] = value;
+                    };
+                    
+                    const getItem = (key) => {
+                        log('GET', key + ' -> ' + originalLocalStorage[key]);
+                        return originalLocalStorage[key];
+                    };
+                    
+                    // Create new localStorage proxy
+                    window.localStorage = new Proxy({}, {
+                        get(target, name) {
+                            if (name === 'setItem') return setItem;
+                            if (name === 'getItem') return getItem;
+                            if (name === 'removeItem') return (key) => {
+                                log('DELETE', key);
+                                originalLocalStorage.removeItem(key);
+                            };
+                            return getItem(name);
+                        },
+                        set(target, key, value) {
+                            setItem(key, value);
+                        }
+                    });
+                    
+                    // Style modifications
+                    window.onload = () => {
+                        document.querySelectorAll('#app-mount div[class^="characterBackground-"] > *:not(div)').forEach(e => e.remove());
+                        
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                            form[class*="authBox-"]::before, section[class*="authBox-"]::before {
+                                content: unset;
+                            }
+                            form[class*="authBox-"], section[class*="authBox-"] {
+                                background-color: rgba(0, 0, 0, .7)!important;
+                                -webkit-backdrop-filter: blur(24px) saturate(140%);
+                                border-radius: ${if (shrink) "0" else "12"}px;
+                                ${if (shrink) "padding: 1rem;" else ""}
+                            }
+                            .theme-dark {
+                                --input-background: rgba(0, 0, 0, .25)!important;
+                            }
+                            div[class^="select-"] > div > div:nth-child(2) {
+                                background-color: var(--input-background)!important;
+                            }
+                            ${if (shrunkShowingQR) """
+                                .qr-only div[class*="centeringWrapper-"]>div {
+                                    flex-direction: column;
+                                }
+                                .qr-only div[class*="mainLoginContainer-"]>div:nth-child(2) {
+                                    display: none;
+                                }
+                                .qr-only div[class*="qrLogin-"] {
+                                    display: block!important;
+                                    margin-top: 24px;
+                                }
+                            """ else ""}
+                            span[class^='needAccount'], span[class*=' needAccount'] {
+                                display: none !important;
+                            }
+                            button[class^='smallRegisterLink'], button[class*=' smallRegisterLink'] {
+                                display: none !important;
+                            }
+                        `;
+                        document.body.appendChild(style);
+                    };
+                """.trimIndent()
+
+                evaluateJavascript(js, null)
                 Log.d(TAG, "Starting to load URL: ${viewModel.link.value}")
                 loadUrl(viewModel.link.value)
             }
