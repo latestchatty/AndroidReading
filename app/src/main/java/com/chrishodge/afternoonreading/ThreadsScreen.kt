@@ -167,10 +167,10 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            Row( modifier = Modifier.padding(bottom = 2.dp)) {
+            Row( modifier = Modifier.padding(bottom = 8.dp)) {
                 thread.author?.let {
                     Text(
                         text = it,
@@ -210,7 +210,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             thread.firstPost?.let {
                 Text(
@@ -221,7 +221,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row {
                 Column {
