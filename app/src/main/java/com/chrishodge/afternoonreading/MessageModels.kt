@@ -157,7 +157,6 @@ data class CountDetails(
 
 @Serializable
 data class MessageReference(
-    val type: Int,
     @SerialName("channel_id")
     val channelId: String,
     @SerialName("message_id")
@@ -281,7 +280,7 @@ class MessageViewModel : ViewModel() {
         _userToken.value = newUserToken
     }
 
-    suspend fun submitReply(messageId: String, channelId: String, messageContent: String, userToken: String?) {
+    suspend fun submitReply(messageId: String, channelId: String, messageContent: String, guildId: String, token: String) {
         try {
             val allowedMentions = AllowedMentions(
                 parse = listOf(
@@ -296,8 +295,7 @@ class MessageViewModel : ViewModel() {
                 MessageReference(
                     messageId = messageId,
                     channelId = channelId,
-                    guildId = guildId.value,
-                    type = 0
+                    guildId = guildId
                 )
             } else null
 
@@ -314,7 +312,7 @@ class MessageViewModel : ViewModel() {
             val response = discordApi.createMessage(
                 channelId = channelId,
                 message = newMessage,
-                authorization = if (userToken != null) "$userToken" else "na"
+                authorization = if (token.isNotEmpty()) "$token" else "na"
             )
 
             println("Posted to forum and got response: $response")
