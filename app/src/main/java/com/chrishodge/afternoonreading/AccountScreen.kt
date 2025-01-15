@@ -12,14 +12,24 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -49,23 +59,55 @@ fun WebView.injectJavaScript(script: String, callback: ((String?) -> Unit)? = nu
 
 @Composable
 fun AccountScreen(viewModel: MainViewModel) {
+    val userToken by viewModel.userToken.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        val webViewModel = remember {
-            LoginWebViewModel(
-                onTokenReceived = { token ->
-                    viewModel.updateUserToken(token)
+        if (userToken.isNotBlank()) {
+            // Show signed in state
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Signed In",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+
+                    Button(
+                        onClick = {
+                            viewModel.updateUserToken("")
+                        },
+                        modifier = Modifier.fillMaxWidth(0.5f)
+                    ) {
+                        Text("Sign Out")
+                    }
                 }
+            }
+        } else {
+            // Show login web view
+            val webViewModel = remember {
+                LoginWebViewModel(
+                    onTokenReceived = { token ->
+                        viewModel.updateUserToken(token)
+                    }
+                )
+            }
+            LoginWebView(
+                viewModel = webViewModel,
+                shrink = false,
+                shrunkShowingQR = false
             )
         }
-        LoginWebView(
-            viewModel = webViewModel,
-            shrink = false,
-            shrunkShowingQR = false
-        )
     }
 }
 

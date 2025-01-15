@@ -20,9 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 // FormState.kt
 data class FormState(
@@ -46,6 +48,17 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
         userToken = preferencesManager.getString("user_token"),
     ))
     val formState = _formState.asStateFlow()
+
+    // Function to update form state from MainViewModel
+    fun refreshFromMainViewModel(mainViewModel: MainViewModel) {
+        viewModelScope.launch {
+            mainViewModel.userToken.collect { token ->
+                if (token != _formState.value.userToken) {
+                    updateUserToken(token)
+                }
+            }
+        }
+    }
 
     fun updateGuildId(guildId: String) {
         _formState.update { currentState ->
@@ -138,6 +151,7 @@ fun SharedForm(
     val viewModel = remember { FormViewModel.getInstance(activity, preferencesManager) }
     val formState by viewModel.formState.collectAsState()
     val hiddenIds by viewModel.hiddenIds.collectAsState()
+    val userToken by mainViewModel.userToken.collectAsState()
 
     val hiddenCount = remember(hiddenIds) {
         hiddenIds.count()
@@ -145,6 +159,14 @@ fun SharedForm(
 
     LaunchedEffect(Unit) {
         viewModel.updateHiddenIds()
+        viewModel.refreshFromMainViewModel(mainViewModel)
+    }
+
+    // Update form when token changes in MainViewModel
+    LaunchedEffect(userToken) {
+        if (userToken != formState.userToken) {
+            viewModel.updateUserToken(userToken)
+        }
     }
 
     Column(
@@ -172,14 +194,17 @@ fun SharedForm(
         OutlinedTextField(
             value = formState.nickname,
             onValueChange = { viewModel.updateNickname(it) },
-            label = { Text("Username") },
+            label = { Text("Nickname") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
 
         OutlinedTextField(
             value = formState.userToken,
-            onValueChange = { viewModel.updateUserToken(it) },
+            onValueChange = {
+                viewModel.updateUserToken(it)
+                mainViewModel.updateUserToken(it)
+            },
             label = { Text("User Token") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
@@ -190,8 +215,8 @@ fun SharedForm(
                 onSubmit(formState)
                 mainViewModel.updateFromSettings(formState)
                 Toast.makeText(context, "Settings Saved", Toast.LENGTH_SHORT).show()
-                      },
-            enabled = true, // formState.isValid,
+            },
+            enabled = true,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Save")
@@ -202,10 +227,10 @@ fun SharedForm(
                 viewModel.clearHidden()
                 Toast.makeText(context, "Hidden Cleared", Toast.LENGTH_SHORT).show()
             },
-            enabled = hiddenCount > 0,  // Only enable if there are hidden items
+            enabled = hiddenIds.isNotEmpty(),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Clear $hiddenCount Hidden")
+            Text("Clear ${hiddenIds.size} Hidden")
         }
     }
 }
