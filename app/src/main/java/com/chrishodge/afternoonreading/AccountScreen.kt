@@ -298,7 +298,7 @@ fun LoginWebView(
 class WebViewJavaScriptInterface(private val viewModel: LoginWebViewModel) {
     @JavascriptInterface
     fun onTokenReceived(token: String) {
-        Log.d(TAG, "Token received from JavaScript")
+        Log.d(TAG, "Token received from JavaScript $token")
         viewModel.updateToken(token)
     }
 }
