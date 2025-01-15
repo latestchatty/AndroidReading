@@ -54,7 +54,13 @@ fun AccountScreen(viewModel: MainViewModel) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        val webViewModel = remember { LoginWebViewModel() }
+        val webViewModel = remember {
+            LoginWebViewModel(
+                onTokenReceived = { token ->
+                    viewModel.updateUserToken(token)
+                }
+            )
+        }
         LoginWebView(
             viewModel = webViewModel,
             shrink = false,
@@ -63,7 +69,9 @@ fun AccountScreen(viewModel: MainViewModel) {
     }
 }
 
-class LoginWebViewModel : ViewModel() {
+class LoginWebViewModel(
+    private val onTokenReceived: (String) -> Unit
+) : ViewModel() {
     private val _link = MutableStateFlow("https://discord.com/login")
     val link: StateFlow<String> = _link.asStateFlow()
 
@@ -80,6 +88,7 @@ class LoginWebViewModel : ViewModel() {
         viewModelScope.launch {
             _token.emit(newToken)
             Log.d(TAG, "Token updated: ${newToken?.take(10)}...")
+            newToken?.let { onTokenReceived(it) }
         }
     }
 
