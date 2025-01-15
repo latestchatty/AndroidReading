@@ -120,6 +120,18 @@ class MainViewModel(
         _channelName.value = ""
         _channelOP.value = null
     }
+
+    fun setGuildId(newGuildId: String) {
+        _guildId.value = newGuildId
+        // Propagate to MessageViewModel
+        messageViewModel.value?.setGuildId(newGuildId)
+    }
+
+    // Call this when saving settings
+    fun updateFromSettings(formState: FormState) {
+        setGuildId(formState.guildId)
+        updateUserToken(formState.userToken)
+    }
 }
 
 // Create a ViewModelFactory

@@ -248,6 +248,9 @@ data class NewMessage(
 class MessageViewModel : ViewModel() {
     private val discordApi = DiscordApi.create()
 
+    private var _guildId = mutableStateOf("na")
+    val guildId: State<String> = _guildId
+
     private var _message = mutableStateOf<Message?>(null)
     val message: State<Message?> = _message
 
@@ -260,8 +263,11 @@ class MessageViewModel : ViewModel() {
     private var _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
 
-    // Add the submitReply function here
-    suspend fun submitReply(messageId: String, channelId: String, messageContent: String, primaryGuildId: String, userToken: String?) {
+    fun setGuildId(newGuildId: String) {
+        _guildId.value = newGuildId
+    }
+
+    suspend fun submitReply(messageId: String, channelId: String, messageContent: String, userToken: String?) {
         try {
             val allowedMentions = AllowedMentions(
                 parse = listOf(
@@ -276,7 +282,7 @@ class MessageViewModel : ViewModel() {
                 MessageReference(
                     messageId = messageId,
                     channelId = channelId,
-                    guildId = primaryGuildId,
+                    guildId = guildId.value,
                     type = 0
                 )
             } else null

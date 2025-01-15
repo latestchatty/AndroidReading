@@ -320,7 +320,6 @@ fun MessagesScreen(
                                                 messageId = message.id,
                                                 channelId = channelId,
                                                 messageContent = replyText,
-                                                primaryGuildId = mainViewModel.guildId.value,
                                                 userToken = userToken
                                             )
                                         }
