@@ -216,7 +216,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 Text(
                     text = it.content,
                     style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
             }
