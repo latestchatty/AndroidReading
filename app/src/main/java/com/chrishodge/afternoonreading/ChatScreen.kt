@@ -75,8 +75,6 @@ fun ChatScreen(viewModel: MainViewModel) {
             val dismissThreshold = 100f
             val density = LocalDensity.current
 
-
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
