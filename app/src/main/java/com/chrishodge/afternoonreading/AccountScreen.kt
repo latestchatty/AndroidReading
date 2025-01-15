@@ -1,6 +1,7 @@
 package com.chrishodge.afternoonreading.ui
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.ConsoleMessage
@@ -29,6 +30,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 private const val TAG = "LoginWebView"
+
+// Extension function to inject JavaScript
+fun WebView.injectJavaScript(script: String, callback: ((String?) -> Unit)? = null) {
+    post {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            evaluateJavascript(script) { result ->
+                callback?.invoke(result)
+            }
+        } else {
+            // For older versions, fall back to loadUrl
+            loadUrl("javascript:$script")
+            callback?.invoke(null)
+        }
+        Log.d(TAG, "JavaScript injection completed")
+    }
+}
 
 @Composable
 fun AccountScreen(viewModel: MainViewModel) {
@@ -262,7 +279,11 @@ fun LoginWebView(
                     };
                 """.trimIndent()
 
-                evaluateJavascript(js, null)
+                // Use the new injectJavaScript extension function
+                injectJavaScript(js) { result ->
+                    Log.d(TAG, "JavaScript injection result: $result")
+                }
+
                 Log.d(TAG, "Starting to load URL: ${viewModel.link.value}")
                 loadUrl(viewModel.link.value)
             }
