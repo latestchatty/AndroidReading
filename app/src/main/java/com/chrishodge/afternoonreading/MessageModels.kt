@@ -247,10 +247,10 @@ data class NewMessage(
 class MessageViewModel : ViewModel() {
     private val discordApi = DiscordApi.create()
 
-    private var _guildId = mutableStateOf("na")
+    private var _guildId = mutableStateOf("1250110786676981872")
     val guildId: State<String> = _guildId
 
-    private var _forumId = mutableStateOf("0")
+    private var _forumId = mutableStateOf("01321902595287285832")
     val forumId: State<String> = _forumId
 
     private var _userToken = mutableStateOf("")

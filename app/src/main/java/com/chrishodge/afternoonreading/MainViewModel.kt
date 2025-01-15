@@ -1,4 +1,4 @@
-package com.chrishodge.afternoonreading
+   package com.chrishodge.afternoonreading
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -23,10 +23,10 @@ class MainViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    private val _guildId = mutableStateOf(preferencesManager.getString("guild_id"))
+    private val _guildId = mutableStateOf(preferencesManager.getStringDefault("guild_id", "1250110786676981872"))
     val guildId: State<String> = _guildId
 
-    private val _forumId = mutableStateOf(preferencesManager.getString("forum_id"))
+    private val _forumId = mutableStateOf(preferencesManager.getStringDefault("forum_id", "1321902595287285832"))
     val forumId: State<String> = _forumId
 
     private val _hiddenIds: MutableStateFlow<Set<String>> = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))

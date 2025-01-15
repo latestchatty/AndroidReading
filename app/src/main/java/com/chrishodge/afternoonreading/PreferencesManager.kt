@@ -30,6 +30,11 @@ class PreferencesManager(context: Context) {
         return sharedPreferences.getString(key, defaultValue) ?: defaultValue
     }
 
+    // In PreferencesManager
+    fun getStringDefault(key: String, defaultValue: String): String {
+        return sharedPreferences.getString(key, defaultValue) ?: defaultValue
+    }
+
     fun getInt(key: String, defaultValue: Int = 0): Int {
         return sharedPreferences.getInt(key, defaultValue)
     }
