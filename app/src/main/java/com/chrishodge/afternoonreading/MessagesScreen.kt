@@ -6,6 +6,9 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -49,6 +53,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -105,6 +110,7 @@ fun MessagesScreen(
     val userToken by mainViewModel.userToken.collectAsState(initial = "")
     var showReplySheet by remember { mutableStateOf(false) }
     val submitMessageScope = rememberCoroutineScope()
+    var splitRatio by remember { mutableFloatStateOf(0.4f) }
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -173,10 +179,11 @@ fun MessagesScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            // Top section (message content)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.4f)
+                    .weight(splitRatio)
             ) {
                 Column(
                     modifier = Modifier
@@ -250,14 +257,34 @@ fun MessagesScreen(
                 }
             }
 
-            // Action buttons section
+            // Action buttons section with drag handle
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(44.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(0.25f))
+                    .draggable(
+                        orientation = Orientation.Vertical,
+                        state = rememberDraggableState { delta ->
+                            // Calculate new ratio based on drag delta
+                            val newRatio = splitRatio + (delta / 1000f)
+                            // Clamp the ratio between 0.2 and 0.8 (20% - 80%)
+                            splitRatio = newRatio.coerceIn(0.2f, 0.8f)
+                        }
+                    )
                     .padding(8.dp)
             ) {
+                // Drag handle indicator
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(32.dp)
+                        .height(4.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                            shape = MaterialTheme.shapes.small
+                        )
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -270,8 +297,6 @@ fun MessagesScreen(
                         )
                     } else {
                         IconButton(onClick = {
-                            //messages = emptyList()
-                            //messageViewModel?.clearMessages()
                             messageViewModel?.fetchMessages(channelId, 100, channelOp)
                         }) {
                             Icon(
@@ -285,19 +310,19 @@ fun MessagesScreen(
                     Spacer(modifier = Modifier.weight(1f))
 
                     selectedMessage?.let {
-                        Box() {
+                        Box {
                             MoreDropdownMenu(message = it, mainViewModel = mainViewModel)
                         }
                     }
 
                     selectedMessage?.let {
                         if (userToken.isNotEmpty()) {
-                            Box() {
+                            Box {
                                 TagMenu(message = it, mainViewModel = mainViewModel)
                             }
                         }
                     }
-                    // Reply to selectedMessage
+
                     if (userToken.isNotEmpty()) {
                         IconButton(onClick = { showReplySheet = true }) {
                             Image(
@@ -308,13 +333,12 @@ fun MessagesScreen(
                                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
                             )
                         }
-                        // Add the bottom sheet
+
                         if (showReplySheet) {
                             ReplyBottomSheet(
                                 onDismiss = { showReplySheet = false },
                                 onSubmit = { replyText ->
                                     selectedMessage?.let { message ->
-                                        // Launch in a coroutine scope
                                         submitMessageScope.launch {
                                             messageViewModel?.submitReply(
                                                 messageId = message.id,
@@ -337,7 +361,7 @@ fun MessagesScreen(
             // Messages list section
             ThreadedMessageList(
                 messages = messages,
-                modifier = Modifier.weight(0.6f),
+                modifier = Modifier.weight(1f - splitRatio),
                 selectedMessage = selectedMessage,
                 onMessageSelected = { message ->
                     selectedMessage = message
