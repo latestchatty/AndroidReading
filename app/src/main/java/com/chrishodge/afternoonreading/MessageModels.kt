@@ -287,6 +287,22 @@ class MessageViewModel : ViewModel() {
         _userToken.value = newUserToken
     }
 
+    suspend fun submitReaction(channelId: String, messageId: String, emjiName: String, emojiId: String, token: String) {
+        try {
+            val response = discordApi.createReaction(
+                channelId = channelId,
+                messageId = messageId,
+                emojiName = emjiName,
+                emojiId = emojiId,
+                authorization = if (token.isNotEmpty()) "$token" else "na"
+            )
+            println("Tagged to $messageId and got response: $response")
+        } catch (e: Exception) {
+            println("Message error: ${e}")
+            _error.value = e.message ?: "Unknown error occurred"
+        }
+    }
+
     suspend fun submitReply(messageId: String, channelId: String, messageContent: String, guildId: String, token: String) {
         try {
             val allowedMentions = AllowedMentions(

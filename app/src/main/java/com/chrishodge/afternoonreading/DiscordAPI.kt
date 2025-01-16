@@ -8,6 +8,7 @@ import retrofit2.Retrofit
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -36,6 +37,15 @@ interface DiscordApi {
     suspend fun createMessage(
         @Path("channelId") channelId: String,
         @Body message: NewMessage,
+        @retrofit2.http.Header("Authorization") authorization: String? = null
+    ): Message
+
+    @PUT("channels/{channelId}/messages/{messageId}/reactions/{emojiName}:{emojiId}/@me")
+    suspend fun createReaction(
+        @Path("channelId") channelId: String,
+        @Path("messageId") messageId: String,
+        @Path("emojiName") emojiName: String,
+        @Path("emojiId") emojiId: String,
         @retrofit2.http.Header("Authorization") authorization: String? = null
     ): Message
 
