@@ -175,7 +175,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 thread.username?.let { username ->
                     thread.author?.let { author ->
                         Text(
-                            text = "$author",
+                            text = author,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = if (nickname.isNotBlank() && nickname.lowercase() == username.lowercase()) colorResource(
@@ -184,7 +184,8 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                                 id = R.color.orange
                             ),
                             textAlign = TextAlign.Left,
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

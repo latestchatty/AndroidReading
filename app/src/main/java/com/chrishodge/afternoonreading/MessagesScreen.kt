@@ -239,6 +239,26 @@ fun MessagesScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Display message content including embeds
+                    selectedMessage?.let { message ->
+                        MessageContent(
+                            message = message,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+
+                    // Display attachments in detail view
+                    selectedMessage?.attachments?.let { attachments ->
+                        if (attachments.isNotEmpty()) {
+                            MessageAttachments(
+                                attachments = attachments,
+                                modifier = Modifier.fillMaxWidth(),
+                                maxHeight = 300.dp
+                            )
+                        }
+                    }
+
                     // Display attachments in detail view
                     selectedMessage?.attachments?.let { attachments ->
                         if (attachments.isNotEmpty()) {
@@ -1213,6 +1233,52 @@ fun ReplyBottomSheet(
 
             // Add some padding at the bottom to account for system navigation
             Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+fun ImageEmbed(
+    embed: Embed,
+    modifier: Modifier = Modifier
+) {
+    embed.thumbnail?.let { thumbnail ->
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(thumbnail.url)
+                .crossfade(true)
+                .build(),
+            contentDescription = embed.title ?: "Embedded image",
+            modifier = modifier
+                .fillMaxWidth()
+                .heightIn(max = 300.dp)
+                .padding(vertical = 4.dp),
+            contentScale = ContentScale.Fit
+        )
+    }
+}
+
+// Update the existing message content display to include image embeds
+@Composable
+fun MessageContent(
+    message: Message,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        // Display message embeds
+        message.embeds.forEach { embed ->
+            when (embed.type) {
+                "image" -> ImageEmbed(
+                    embed = embed,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                "article" -> ArticleEmbed(
+                    embed = embed,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
+            }
         }
     }
 }
