@@ -251,7 +251,7 @@ fun MessagesScreen(
                         }
                     }
 
-                    // Display image embeds
+                    // Display article and image embeds
                     selectedMessage?.let { message ->
                         ImageEmbeds(
                             message = message,
@@ -266,18 +266,6 @@ fun MessagesScreen(
                                 attachments = attachments,
                                 modifier = Modifier.fillMaxWidth(),
                                 maxHeight = 300.dp  // Larger for detail view
-                            )
-                        }
-                    }
-
-                    // Display article embeds
-                    selectedMessage?.embeds?.forEach { embed ->
-                        if (embed.type == "article") {
-                            ArticleEmbed(
-                                embed = embed,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp)
                             )
                         }
                     }
@@ -775,11 +763,19 @@ fun ArticleEmbed(
     embed: Embed,
     modifier: Modifier = Modifier
 ) {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .background(Color.Gray.copy(alpha = 0.1f))
             .padding(8.dp)
+            .clickable {
+                // Open the URL when clicked
+                embed.url?.let { url ->
+                    uriHandler.openUri(url)
+                }
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -857,6 +853,7 @@ fun MessageAttachments(
     modifier: Modifier = Modifier,
     maxHeight: Dp = 200.dp
 ) {
+    val uriHandler = LocalUriHandler.current
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -882,7 +879,10 @@ fun MessageAttachments(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(max = maxHeight)
-                            .padding(vertical = 4.dp),
+                            .padding(vertical = 4.dp)
+                            .clickable {
+                                uriHandler.openUri(attachment.url)
+                            },
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -891,7 +891,10 @@ fun MessageAttachments(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
+                            .padding(vertical = 4.dp)
+                            .clickable {
+                                uriHandler.openUri(attachment.url)
+                            },
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -1243,6 +1246,8 @@ fun ImageEmbed(
     embed: Embed,
     modifier: Modifier = Modifier
 ) {
+    val uriHandler = LocalUriHandler.current
+
     embed.thumbnail?.let { thumbnail ->
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -1251,6 +1256,12 @@ fun ImageEmbed(
                 .build(),
             contentDescription = embed.title ?: "Embedded image",
             modifier = modifier
+                .clickable {
+                    // Open the URL when clicked
+                    embed.url?.let { url ->
+                        uriHandler.openUri(url)
+                    }
+                }
                 .fillMaxWidth()
                 .heightIn(max = 300.dp)
                 .padding(vertical = 4.dp),
