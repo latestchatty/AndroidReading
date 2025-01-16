@@ -39,8 +39,8 @@ class ThreadsViewModel(
                 val processedThreads = initialThreads.toMutableList()
                 initialThreads.forEachIndexed { index, thread ->
                     try {
-                        if (index < 30) {
-                            delay(125) // 125ms delay between requests
+                        if (index < 40) {
+                            delay(55) // 125ms delay between requests
                             val messageResponse = threadsClient.getMessage(
                                 url = "https://canary.discord.com/api/v9/channels/${thread.id}/messages/${thread.id}"
                             )
