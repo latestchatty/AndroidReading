@@ -219,7 +219,7 @@ fun MessagesScreen(
                         )
                     }
 
-                    // Display supported reactions
+                    // Display reactions
                     selectedMessage?.reactions?.let { reactions ->
                         GroupedReactions(
                             reactions = reactions,
@@ -227,6 +227,7 @@ fun MessagesScreen(
                         )
                     }
 
+                    // Markdown title or name
                     if (selectedMessage?.id == channelId) {
                         SimpleMarkdownText(
                             markdown = channelName,
@@ -234,6 +235,7 @@ fun MessagesScreen(
                         )
                     }
 
+                    // Markdown content
                     EnhancedMarkdownText(
                         markdown = selectedMessage?.content ?: "",
                         modifier = Modifier.fillMaxWidth()
@@ -1159,14 +1161,15 @@ fun TagMenu(message: Message, mainViewModel: MainViewModel, messageViewModel: Me
                 text = { Text(tag.removePrefix("Shack"), color = MaterialTheme.colorScheme.primary) },
                 onClick = {
                     submitReactionScope.launch {
-                            messageViewModel?.submitReaction(
-                                channelId = message.channelId,
-                                messageId = message.id,
-                                emjiName =  tag,
-                                emojiId = id,
-                                token = mainViewModel.userToken.value
-                            )
-                        }
+                        messageViewModel.submitReaction(
+                            channelId = message.channelId,
+                            messageId = message.id,
+                            emjiName =  tag,
+                            emojiId = id,
+                            token = mainViewModel.userToken.value
+                        )
+                        messageViewModel.refreshMessage(message.channelId, message.id)
+                    }
                     expanded = false
                     Toast.makeText(context, "Tagged!", Toast.LENGTH_SHORT).show()
                 }

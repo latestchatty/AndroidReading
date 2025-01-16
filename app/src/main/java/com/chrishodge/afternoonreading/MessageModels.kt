@@ -275,6 +275,20 @@ class MessageViewModel : ViewModel() {
     private var _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
 
+    fun refreshMessage(channelId: String, messageId: String) {
+        viewModelScope.launch {
+            try {
+                val updatedMessage = discordApi.getMessage(channelId, messageId)
+                // Update the message in the messages list
+                _messages.value = _messages.value.map { message ->
+                    if (message.id == messageId) updatedMessage else message
+                }
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Unknown error occurred"
+            }
+        }
+    }
+
     fun setGuildId(newGuildId: String) {
         _guildId.value = newGuildId
     }
