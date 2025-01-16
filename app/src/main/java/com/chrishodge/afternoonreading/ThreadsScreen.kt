@@ -203,7 +203,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 }
                 Spacer(Modifier.weight(1f).fillMaxHeight())
                 Text(
-                    text = "${thread.threadMetadata.createTimestamp?.let { formatDate(it) }}",
+                    text = "${thread.threadMetadata.createTimestamp?.let { formatDate(it) }} (${thread.messageCount})",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray.copy(0.75f),
                     textAlign = TextAlign.Right,
@@ -220,35 +220,36 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
 
             Spacer(modifier = Modifier.height(2.dp))
 
-            thread.firstPost?.let {
-                Text(
-                    text = it.content,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Row {
-                Column {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                thread.firstPost?.let {
                     Text(
-                        text = if (thread.messageCount == 1) "1 Reply" else "${thread.messageCount} Replies",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = "${thread.memberCount} Contributors",
-                        style = MaterialTheme.typography.bodyMedium
+                        modifier = Modifier.weight(1f),
+                        text = it.content,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                Spacer(Modifier.weight(1f).fillMaxHeight())
-                Row {
-                    Box {
-                        MinimalDropdownMenu(thread = thread, mainViewModel = mainViewModel)
-                    }
+                if (thread.firstPost == null) {
+                    Text(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(Color.DarkGray),
+                        text = "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = Color.DarkGray
+                    )
                 }
+                MinimalDropdownMenu(
+                    thread = thread,
+                    mainViewModel = mainViewModel)
             }
+
             /*
             if (!thread.appliedTags.isNullOrEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
