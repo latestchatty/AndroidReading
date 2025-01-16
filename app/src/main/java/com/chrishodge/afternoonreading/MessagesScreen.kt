@@ -335,8 +335,10 @@ fun MessagesScreen(
 
                     selectedMessage?.let {
                         if (userToken.isNotEmpty()) {
-                            Box {
-                                TagMenu(message = it, mainViewModel = mainViewModel)
+                            if (messageViewModel != null) {
+                                Box {
+                                    TagMenu(message = it, mainViewModel = mainViewModel, messageViewModel = messageViewModel)
+                                }
                             }
                         }
                     }
@@ -1124,9 +1126,10 @@ fun MoreDropdownMenu(message: Message, mainViewModel: MainViewModel) {
 }
 
 @Composable
-fun TagMenu(message: Message, mainViewModel: MainViewModel) {
+fun TagMenu(message: Message, mainViewModel: MainViewModel, messageViewModel: MessageViewModel) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val submitReactionScope = rememberCoroutineScope()
 
     IconButton(onClick = { expanded = !expanded }) {
         Image(
@@ -1149,6 +1152,15 @@ fun TagMenu(message: Message, mainViewModel: MainViewModel) {
             DropdownMenuItem(
                 text = { Text(tag.removePrefix("Shack"), color = MaterialTheme.colorScheme.primary) },
                 onClick = {
+                    submitReactionScope.launch {
+                            messageViewModel?.submitReaction(
+                                channelId = message.channelId,
+                                messageId = message.id,
+                                emjiName =  tag,
+                                emojiId = id,
+                                token = mainViewModel.userToken.value
+                            )
+                        }
                     expanded = false
                     Toast.makeText(context, "Tagged!", Toast.LENGTH_SHORT).show()
                 }
