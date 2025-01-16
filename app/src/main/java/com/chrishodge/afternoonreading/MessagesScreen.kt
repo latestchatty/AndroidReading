@@ -445,8 +445,14 @@ private fun ThreadedMessageList(
             } else emptyList()
         }
 
+    // Messages list
     LazyColumn(
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(
+            start = 0.dp,
+            top = 2.dp,
+            end = 0.dp,
+            bottom = 16.dp  // Add your desired bottom padding here
+        ),
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
