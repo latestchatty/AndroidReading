@@ -104,8 +104,15 @@ data class Embed(
     val referenceId: String? = null,
     val provider: Provider? = null,
     val thumbnail: Thumbnail? = null,
+    val author: EmbedAuthor? = null,
     @SerialName("content_scan_version")
     val contentScanVersion: Int? = null
+)
+
+@Serializable
+data class EmbedAuthor(
+    val name: String,
+    val url: String? = null
 )
 
 @Serializable

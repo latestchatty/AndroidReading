@@ -239,6 +239,18 @@ fun MessagesScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Display video embeds
+                    selectedMessage?.embeds?.forEach { embed ->
+                        if (embed.type == "video") {
+                            VideoEmbed(
+                                embed = embed,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                            )
+                        }
+                    }
+
                     // Display image embeds
                     selectedMessage?.let { message ->
                         ImageEmbeds(
@@ -247,7 +259,7 @@ fun MessagesScreen(
                         )
                     }
 
-                    // Display attachments in detail view
+                    // Display attachments
                     selectedMessage?.attachments?.let { attachments ->
                         if (attachments.isNotEmpty()) {
                             MessageAttachments(
@@ -1267,6 +1279,87 @@ fun ImageEmbeds(
                         .padding(top = 8.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun VideoEmbed(
+    embed: Embed,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color.Gray.copy(alpha = 0.1f))
+            .padding(8.dp)
+    ) {
+        // Clickable title that opens the video URL
+        val uriHandler = LocalUriHandler.current
+
+        // Video thumbnail
+        embed.thumbnail?.let { thumbnail ->
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(thumbnail.url)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = embed.title ?: "Video thumbnail",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 300.dp)
+                    .clickable {
+                        embed.url?.let { url ->
+                            uriHandler.openUri(url)
+                        }
+                    },
+                contentScale = ContentScale.Fit
+            )
+        }
+
+        // Video title
+        embed.title?.let { title ->
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .clickable {
+                        embed.url?.let { url ->
+                            uriHandler.openUri(url)
+                        }
+                    }
+            )
+        }
+
+        // Channel/Author info
+        embed.author?.let { author ->
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = author.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.clickable {
+                        author.url?.let { url ->
+                            uriHandler.openUri(url)
+                        }
+                    }
+                )
+            }
+        }
+
+        // Provider info (YouTube, etc)
+        embed.provider?.let { provider ->
+            Text(
+                text = provider.name,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
 }

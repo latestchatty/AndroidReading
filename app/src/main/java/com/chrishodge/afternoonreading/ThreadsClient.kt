@@ -55,7 +55,7 @@ class ThreadsClient(private val authToken: String) {
                 }
             }.body()
         } catch (e: Exception) {
-            throw RuntimeException("Failed to fetch threads: ${e.message}", e)
+            throw RuntimeException("Failed to fetch threads: ${e.message} at $url", e)
         }
     }
 
