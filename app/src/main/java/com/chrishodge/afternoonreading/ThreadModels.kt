@@ -47,6 +47,7 @@ data class Thread(
     val lastPinTimestamp: String? = null,
 
     var author: String? = "",
+    var username: String? = "",
     var firstPost: Message? = null
 )
 

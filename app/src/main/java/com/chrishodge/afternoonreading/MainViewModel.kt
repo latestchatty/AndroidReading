@@ -32,6 +32,14 @@ class MainViewModel(
     private val _hiddenIds: MutableStateFlow<Set<String>> = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
     val hiddenIds = _hiddenIds.asStateFlow()
 
+    private val _nickname = MutableStateFlow(preferencesManager.getString("nickname"))
+    val nickname = _nickname.asStateFlow()
+
+    fun updateNickname(newNickname: String) {
+        _nickname.value = newNickname
+        preferencesManager.saveString("nickname", newNickname)
+    }
+
     private val _userToken = MutableStateFlow(
         preferencesManager.getString("user_token").also {
             println("Initial token loaded: '$it'")
@@ -132,6 +140,7 @@ class MainViewModel(
         _guildId.value = formState.guildId
         _forumId.value = formState.forumId
         _userToken.value = formState.userToken
+        _nickname.value = formState.nickname
         messageViewModel.value?.let { viewModel ->
             viewModel.setGuildId(formState.guildId)
             viewModel.setForumId(formState.forumId)

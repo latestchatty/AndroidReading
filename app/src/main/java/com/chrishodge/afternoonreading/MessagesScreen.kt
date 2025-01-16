@@ -112,6 +112,7 @@ fun MessagesScreen(
     var showReplySheet by remember { mutableStateOf(false) }
     val submitMessageScope = rememberCoroutineScope()
     var splitRatio by remember { mutableFloatStateOf(0.4f) }
+    val nickname by mainViewModel.nickname.collectAsState("")
 
     LaunchedEffect(channelOp) {
         messageId = channelId
@@ -372,6 +373,7 @@ fun MessagesScreen(
                 messages = messages,
                 modifier = Modifier.weight(1f - splitRatio),
                 selectedMessage = selectedMessage,
+                nickname = nickname,
                 onMessageSelected = { message ->
                     selectedMessage = message
                 }
@@ -386,6 +388,7 @@ private fun ThreadedMessageList(
     messages: List<Message>,
     modifier: Modifier = Modifier,
     selectedMessage: Message?,
+    nickname: String,
     onMessageSelected: (Message) -> Unit
 ) {
     var selectedMessageId by remember { mutableStateOf<String?>(null) }
@@ -448,6 +451,7 @@ private fun ThreadedMessageList(
                 indent = indent,
                 isSelected = message.id == selectedMessageId,
                 recentIndex = recentMessageIds[message.id],
+                nickname = nickname,
                 onMessageClick = {
                     selectedMessageId = it.id
                     onMessageSelected(it)
@@ -483,6 +487,7 @@ fun ThreadedMessage(
     indent: Int = 0,
     isSelected: Boolean = false,
     recentIndex: Int? = null,
+    nickname: String,
     onMessageClick: (Message) -> Unit = {}
 ) {
     val backgroundColor = when {
@@ -549,7 +554,7 @@ fun ThreadedMessage(
                 text = message.author.globalName ?: message.author.username,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.orange),
+                color = if (message.author.username.lowercase() == nickname.lowercase()) colorResource(id = R.color.blue) else colorResource(id = R.color.orange),
                 textAlign = TextAlign.Right,
                 maxLines = 1
             )

@@ -12,5 +12,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#FFF09A38</color>
+    <color name="blue">#2196F3</color>
     <color name="redacted_orange">#FF3B2A16</color>
 </resources>

@@ -153,6 +153,7 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
 
 @Composable
 fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
+    val nickname by mainViewModel.nickname.collectAsState("")
     Card(
         onClick = {
             mainViewModel.setChannel(thread = thread)
@@ -171,15 +172,21 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 .fillMaxWidth()
         ) {
             Row( modifier = Modifier.padding(vertical = 4.dp)) {
-                thread.author?.let {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = colorResource(id = R.color.orange),
-                        textAlign = TextAlign.Left,
-                        maxLines = 1
-                    )
+                thread.username?.let { username ->
+                    thread.author?.let { author ->
+                        Text(
+                            text = "$author",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (nickname.isNotBlank() && nickname.lowercase() == username.lowercase()) colorResource(
+                                id = R.color.blue
+                            ) else colorResource(
+                                id = R.color.orange
+                            ),
+                            textAlign = TextAlign.Left,
+                            maxLines = 1
+                        )
+                    }
                 }
                 if (thread.author?.isBlank() == true) {
                     Box(modifier = Modifier.background(colorResource(id = R.color.redacted_orange))) {

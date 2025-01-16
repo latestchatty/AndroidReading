@@ -48,6 +48,7 @@ class ThreadsViewModel(
                             processedThreads[index] = thread.copy(
                                 author = (messageResponse.author?.globalName
                                     ?: messageResponse.author?.username).toString(),
+                                username = messageResponse.author?.username,
                                 firstPost = messageResponse
                             )
                             // Emit updated list after each thread is processed
