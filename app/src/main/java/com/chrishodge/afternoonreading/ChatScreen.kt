@@ -40,6 +40,13 @@ fun ChatScreen(viewModel: MainViewModel) {
     val apiKey = BuildConfig.API_KEY
     println("API Key: $apiKey")
 
+    // BackHandler
+    androidx.activity.compose.BackHandler(
+        enabled = viewModel.channelId.value != "0"
+    ) {
+        viewModel.navigateToThreadsScreen()
+    }
+
     val threadsClient = ThreadsClient("$apiKey")
     val guildId = viewModel.guildId.value
     val channelId = viewModel.channelId.value
