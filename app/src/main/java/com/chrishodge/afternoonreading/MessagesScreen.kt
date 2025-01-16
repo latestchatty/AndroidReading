@@ -566,6 +566,7 @@ fun ThreadedMessage(
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Left,
                 maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(1f)
                     .alpha(textOpacity)
@@ -1258,7 +1259,6 @@ fun ImageEmbed(
     }
 }
 
-// Update the existing message content display to include image embeds
 @Composable
 fun ImageEmbeds(
     message: Message,
