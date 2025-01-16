@@ -1168,7 +1168,6 @@ fun TagMenu(message: Message, mainViewModel: MainViewModel, messageViewModel: Me
                             emojiId = id,
                             token = mainViewModel.userToken.value
                         )
-                        messageViewModel.refreshMessage(message.channelId, message.id)
                     }
                     expanded = false
                     Toast.makeText(context, "Tagged!", Toast.LENGTH_SHORT).show()
