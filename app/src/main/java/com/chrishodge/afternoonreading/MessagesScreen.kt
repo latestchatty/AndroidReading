@@ -239,24 +239,12 @@ fun MessagesScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Display message content including embeds
+                    // Display image embeds
                     selectedMessage?.let { message ->
-                        MessageContent(
+                        ImageEmbeds(
                             message = message,
                             modifier = Modifier.fillMaxWidth()
                         )
-                    }
-
-
-                    // Display attachments in detail view
-                    selectedMessage?.attachments?.let { attachments ->
-                        if (attachments.isNotEmpty()) {
-                            MessageAttachments(
-                                attachments = attachments,
-                                modifier = Modifier.fillMaxWidth(),
-                                maxHeight = 300.dp
-                            )
-                        }
                     }
 
                     // Display attachments in detail view
@@ -1260,7 +1248,7 @@ fun ImageEmbed(
 
 // Update the existing message content display to include image embeds
 @Composable
-fun MessageContent(
+fun ImageEmbeds(
     message: Message,
     modifier: Modifier = Modifier
 ) {
