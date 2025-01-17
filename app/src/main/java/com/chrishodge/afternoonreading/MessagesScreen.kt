@@ -110,9 +110,7 @@ fun MessagesScreen(
     //var messages = messageViewModel?.messages?.value ?: emptyList()
 
     // Use mutable state for messages
-    var messages by remember(messageViewModel) {
-        mutableStateOf(messageViewModel?.messages?.value ?: emptyList())
-    }
+    var messages by remember { mutableStateOf(listOf<Message>()) }
 
     val userToken by mainViewModel.userToken.collectAsState(initial = "")
     var showReplySheet by remember { mutableStateOf(false) }
@@ -1182,7 +1180,7 @@ fun TagMenu(message: Message, mainViewModel: MainViewModel, messageViewModel: Me
                     }
                     var replacementMessage = message
                     val otherTags = message.reactions?.filter { it.emoji.id != id }?.toMutableList() ?: mutableListOf()
-                    val previousTag = message.reactions?.filter { it.emoji.id == id }?.first()
+                    val previousTag = message.reactions?.first { it.emoji.id == id }
                     val newTag = Reaction(
                         emoji = Emoji(id, tag),
                         count = (previousTag?.count ?: 0) + 1,
