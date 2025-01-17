@@ -33,7 +33,7 @@ data class Message(
     val mentionRoles: List<String> = emptyList(),
     val attachments: List<Attachment> = emptyList(),
     val embeds: List<Embed> = emptyList(),
-    val reactions: List<Reaction>? = null,
+    var reactions: List<Reaction>? = null,
     val flags: Int = 0,
     val position: Int? = null,
     @SerialName("message_reference")

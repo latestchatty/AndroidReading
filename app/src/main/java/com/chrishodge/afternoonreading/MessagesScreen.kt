@@ -107,14 +107,21 @@ fun MessagesScreen(
     var selectedMessage by remember { mutableStateOf<Message?>(null) }
     val messageContentScrollState = rememberScrollState()
     val messageListScrollState = rememberScrollState()
-    var messages = messageViewModel?.messages?.value ?: emptyList()
+    //var messages = messageViewModel?.messages?.value ?: emptyList()
+
+    // Use mutable state for messages
+    var messages by remember(messageViewModel) {
+        mutableStateOf(messageViewModel?.messages?.value ?: emptyList())
+    }
+
     val userToken by mainViewModel.userToken.collectAsState(initial = "")
     var showReplySheet by remember { mutableStateOf(false) }
     val submitMessageScope = rememberCoroutineScope()
     var splitRatio by remember { mutableFloatStateOf(0.4f) }
     val nickname by mainViewModel.nickname.collectAsState("")
 
-    LaunchedEffect(channelOp) {
+    // Update messages when channelId changes
+    LaunchedEffect(channelId) {
         messageId = channelId
         if (channelOp == null) {
             channelOp = messageViewModel?.fetchOp(messageId, messageId)
@@ -123,9 +130,13 @@ fun MessagesScreen(
         messageViewModel?.fetchMessages(channelId, 100, channelOp)
     }
 
+    // Observe changes in messageViewModel's messages
+    LaunchedEffect(messageViewModel?.messages?.value) {
+        messages = messageViewModel?.messages?.value ?: emptyList()
+    }
+
     DisposableEffect(Unit) {
         onDispose {
-            messages = emptyList()
             messageViewModel?.clearMessages()
         }
     }
@@ -1169,6 +1180,21 @@ fun TagMenu(message: Message, mainViewModel: MainViewModel, messageViewModel: Me
                             token = mainViewModel.userToken.value
                         )
                     }
+                    var replacementMessage = message
+                    val otherTags = message.reactions?.filter { it.emoji.id != id }?.toMutableList() ?: mutableListOf()
+                    val previousTag = message.reactions?.filter { it.emoji.id == id }?.first()
+                    val newTag = Reaction(
+                        emoji = Emoji(id, tag),
+                        count = (previousTag?.count ?: 0) + 1,
+                        countDetails = CountDetails(burst = 0, normal = 0),
+                        burstColors = emptyList(),
+                        meBurst = false,
+                        burstMe = false,
+                        me = true,
+                        burstCount = 0
+                    )
+                    otherTags.add(newTag)
+                    message.reactions = otherTags
                     expanded = false
                     Toast.makeText(context, "Tagged!", Toast.LENGTH_SHORT).show()
                 }
