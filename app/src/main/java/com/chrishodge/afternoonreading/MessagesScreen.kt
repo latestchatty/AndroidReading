@@ -1379,7 +1379,7 @@ fun EnhancedMarkdownText(
     modifier: Modifier = Modifier
 ) {
     // Keep track of which spoilers have been revealed
-    var revealedSpoilers by remember { mutableStateOf(mutableSetOf<Int>()) }
+    var revealedSpoilers by remember { mutableStateOf(mutableSetOf<String>()) }
 
     // Build annotated string to handle both bold and spoiler formatting
     val annotatedText = buildAnnotatedString {
@@ -1399,17 +1399,23 @@ fun EnhancedMarkdownText(
             if (match.value.startsWith("||")) {
                 val spoilerText = match.groupValues[2]
                 val spoilerIndex = match.range.first
+                // Create unique identifier using both position and content
+                val spoilerId = "$spoilerIndex:$spoilerText"
 
                 // Add a custom string annotation for spoiler
-                pushStringAnnotation("spoiler", spoilerIndex.toString())
+                pushStringAnnotation("spoiler", spoilerId)
 
                 withStyle(SpanStyle(
-                    background = if (revealedSpoilers.contains(spoilerIndex)) {
+                    background = if (revealedSpoilers.contains(spoilerId)) {
                         Color.Transparent
                     } else {
                         MaterialTheme.colorScheme.primary
                     },
-                    color = MaterialTheme.colorScheme.primary
+                    color = if (revealedSpoilers.contains(spoilerId)) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        Color.Transparent
+                    }
                 )) {
                     append(spoilerText)
                 }
@@ -1477,8 +1483,8 @@ fun EnhancedMarkdownText(
                 start = offset,
                 end = offset
             ).firstOrNull()?.let { annotation ->
-                // Reveal the spoiler by adding its index to the revealed set
-                revealedSpoilers = (revealedSpoilers + annotation.item.toInt()).toMutableSet()
+                // Reveal only the clicked spoiler
+                revealedSpoilers = (revealedSpoilers + annotation.item).toMutableSet()
             }
 
             // Check for URL clicks
