@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -266,14 +268,21 @@ class MessageViewModel : ViewModel() {
     private var _message = mutableStateOf<Message?>(null)
     val message: State<Message?> = _message
 
-    private var _messages = mutableStateOf<List<Message>>(emptyList())
-    val messages: State<List<Message>> = _messages
+    private val _messages = MutableStateFlow<List<Message>>(emptyList())
+    val messages = _messages.asStateFlow()
+
+    private val _selectedMessageId = MutableStateFlow<String?>(null)
+    val selectedMessageId = _selectedMessageId.asStateFlow()
 
     private var _error = mutableStateOf<String?>(null)
     val error: State<String?> = _error
 
     private var _isLoading = mutableStateOf(false)
     val isLoading: State<Boolean> = _isLoading
+
+    fun setSelectedMessage(messageId: String?) {
+        _selectedMessageId.value = messageId
+    }
 
     fun setGuildId(newGuildId: String) {
         _guildId.value = newGuildId
@@ -287,19 +296,54 @@ class MessageViewModel : ViewModel() {
         _userToken.value = newUserToken
     }
 
-    suspend fun submitReaction(channelId: String, messageId: String, emjiName: String, emojiId: String, token: String) {
+    suspend fun submitReaction(channelId: String, messageId: String, emojiName: String, emojiId: String, token: String) {
         try {
-            val response = discordApi.createReaction(
+            // Update UI immediately for better UX
+            val currentMessage = _messages.value.find { it.id == messageId }
+            currentMessage?.let { message ->
+                val otherTags = message.reactions?.filter { it.emoji.id != emojiId }?.toMutableList() ?: mutableListOf()
+                val previousTag = message.reactions?.firstOrNull { it.emoji.id == emojiId }
+                val newTag = Reaction(
+                    emoji = Emoji(emojiId, emojiName),
+                    count = (previousTag?.count ?: 0) + 1,
+                    countDetails = CountDetails(burst = 0, normal = 0),
+                    burstColors = emptyList(),
+                    meBurst = false,
+                    burstMe = false,
+                    me = true,
+                    burstCount = 0
+                )
+                otherTags.add(newTag)
+                updateMessageReactions(messageId, otherTags)
+            }
+
+            // Make API call
+            discordApi.createReaction(
                 channelId = channelId,
                 messageId = messageId,
-                emojiName = emjiName,
+                emojiName = emojiName,
                 emojiId = emojiId,
-                authorization = if (token.isNotEmpty()) "$token" else "na"
+                authorization = if (token.isNotEmpty()) token else "na"
             )
-            println("Tagged to $messageId and got response: $response")
+
+            println("Tagged message $messageId successfully")
         } catch (e: Exception) {
-            println("Message error: ${e}")
+            println("Message error: $e")
             _error.value = e.message ?: "Unknown error occurred"
+        }
+    }
+
+    // Add new function to update message reactions
+    fun updateMessageReactions(messageId: String, newReactions: List<Reaction>) {
+        val currentMessages = _messages.value.toMutableList()
+        val messageIndex = currentMessages.indexOfFirst { it.id == messageId }
+
+        if (messageIndex != -1) {
+            val updatedMessage = currentMessages[messageIndex].copy(
+                reactions = newReactions
+            )
+            currentMessages[messageIndex] = updatedMessage
+            _messages.value = currentMessages.toList()
         }
     }
 

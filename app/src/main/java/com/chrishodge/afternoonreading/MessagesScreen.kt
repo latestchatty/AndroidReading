@@ -102,35 +102,47 @@ fun MessagesScreen(
     val messageViewModel = mainViewModel.messageViewModel.collectAsState().value
     val channelName = mainViewModel.channelName.value
     val channelId = mainViewModel.channelId.value
-    var channelOp = mainViewModel.channelOp.value
+    val channelOp by mainViewModel.channelOP.collectAsState()
     var messageId by remember { mutableStateOf("0") }
-    var selectedMessage by remember { mutableStateOf<Message?>(null) }
     val messageContentScrollState = rememberScrollState()
     val messageListScrollState = rememberScrollState()
-    //var messages = messageViewModel?.messages?.value ?: emptyList()
-
-    // Use mutable state for messages
-    var messages by remember { mutableStateOf(listOf<Message>()) }
-
+    val messages by messageViewModel?.messages?.collectAsState(initial = emptyList()) ?: remember {
+        mutableStateOf(emptyList())
+    }
+    // Track selected message ID separately
+    var selectedMessageId by remember { mutableStateOf<String?>(null) }
+    // Create derived state that updates when either messages or selectedMessageId changes
+    val selectedMessage by remember(messages, selectedMessageId) {
+        mutableStateOf(messages.find { it.id == selectedMessageId })
+    }
     val userToken by mainViewModel.userToken.collectAsState(initial = "")
     var showReplySheet by remember { mutableStateOf(false) }
     val submitMessageScope = rememberCoroutineScope()
     var splitRatio by remember { mutableFloatStateOf(0.4f) }
     val nickname by mainViewModel.nickname.collectAsState("")
 
+
     // Update messages when channelId changes
     LaunchedEffect(channelId) {
         messageId = channelId
-        if (channelOp == null) {
-            channelOp = messageViewModel?.fetchOp(messageId, messageId)
+        if (channelId != "0") {
+            if (channelOp == null) {
+                val fetchedOp = messageViewModel?.fetchOp(channelId, channelId)
+                mainViewModel.setChannelOp(fetchedOp)
+                selectedMessageId = fetchedOp?.id
+            } else {
+                selectedMessageId = channelOp?.id
+            }
+            messageViewModel?.fetchMessages(channelId, 100, channelOp)
         }
-        selectedMessage = channelOp as? Message
-        messageViewModel?.fetchMessages(channelId, 100, channelOp)
     }
 
-    // Observe changes in messageViewModel's messages
-    LaunchedEffect(messageViewModel?.messages?.value) {
-        messages = messageViewModel?.messages?.value ?: emptyList()
+
+    // Update selected message when new messages come in
+    LaunchedEffect(messages) {
+        if (selectedMessageId == null && messages.isNotEmpty()) {
+            selectedMessageId = messages.first().id
+        }
     }
 
     DisposableEffect(Unit) {
@@ -174,7 +186,8 @@ fun MessagesScreen(
                 navigationIcon = {
                     IconButton(onClick = {
                         mainViewModel.setChannel(thread = null)
-                        messages = emptyList()
+                        messageViewModel?.clearMessages()
+                        selectedMessageId = null
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -187,6 +200,10 @@ fun MessagesScreen(
     ) { paddingValues ->
         val layoutScope = rememberCoroutineScope()
         var layoutHeight by remember { mutableFloatStateOf(0f) }
+        var splitRatio by remember { mutableFloatStateOf(0.4f) }
+        var showReplySheet by remember { mutableStateOf(false) }
+        val userToken by mainViewModel.userToken.collectAsState()
+        val nickname by mainViewModel.nickname.collectAsState("")
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -396,7 +413,7 @@ fun MessagesScreen(
                 selectedMessage = selectedMessage,
                 nickname = nickname,
                 onMessageSelected = { message ->
-                    selectedMessage = message
+                    selectedMessageId = message.id
                 }
             )
         }
@@ -1173,26 +1190,11 @@ fun TagMenu(message: Message, mainViewModel: MainViewModel, messageViewModel: Me
                         messageViewModel.submitReaction(
                             channelId = message.channelId,
                             messageId = message.id,
-                            emjiName =  tag,
+                            emojiName = tag,
                             emojiId = id,
                             token = mainViewModel.userToken.value
                         )
                     }
-                    var replacementMessage = message
-                    val otherTags = message.reactions?.filter { it.emoji.id != id }?.toMutableList() ?: mutableListOf()
-                    val previousTag = message.reactions?.first { it.emoji.id == id }
-                    val newTag = Reaction(
-                        emoji = Emoji(id, tag),
-                        count = (previousTag?.count ?: 0) + 1,
-                        countDetails = CountDetails(burst = 0, normal = 0),
-                        burstColors = emptyList(),
-                        meBurst = false,
-                        burstMe = false,
-                        me = true,
-                        burstCount = 0
-                    )
-                    otherTags.add(newTag)
-                    message.reactions = otherTags
                     expanded = false
                     Toast.makeText(context, "Tagged!", Toast.LENGTH_SHORT).show()
                 }
