@@ -41,7 +41,9 @@ data class Message(
     @SerialName("message_reference")
     val messageReference: MessageReference? = null,
     @SerialName("referenced_message")
-    val referencedMessage: Message? = null
+    val referencedMessage: Message? = null,
+
+    var cleanContent: String? = ""
 )
 
 @Serializable
@@ -428,6 +430,25 @@ class MessageViewModel : ViewModel() {
                         }
                     }
                     else -> _messages.value + uniqueNewMessages
+                }
+
+                // Mentions and spoilers
+                combinedMessages.forEach { message ->
+                    var cleanedContent = message.content
+                    // Process mentions
+                    message.mentions.forEach { mention ->
+                        cleanedContent = cleanedContent.replace(
+                            "<@${mention.id}>",
+                            "@${mention.globalName ?: mention.username}"
+                        )
+                    }
+                    // Replace spoiler tags with underscores
+                    cleanedContent = cleanedContent.replace(
+                        Regex("\\|\\|([^\\|\\|]*)\\|\\|"),
+                        "______"
+                    )
+                    // Set the cleanContent
+                    message.cleanContent = cleanedContent
                 }
 
                 // Sort all messages by timestamp

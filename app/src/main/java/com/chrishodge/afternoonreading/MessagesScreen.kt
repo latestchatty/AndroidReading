@@ -584,7 +584,7 @@ fun ThreadedMessage(
                 )
             }
             Text(
-                text = message.content,
+                text = message.cleanContent ?: message.content,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = if (recentIndex != null) FontWeight.SemiBold else FontWeight.Normal,
                 color = MaterialTheme.colorScheme.primary,
