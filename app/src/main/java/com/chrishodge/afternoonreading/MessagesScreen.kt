@@ -69,6 +69,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -686,110 +687,6 @@ fun SimpleMarkdownText(
 
     Text(
         text = text,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun ClickableLinksText(
-    text: String,
-    modifier: Modifier = Modifier
-) {
-    val uriHandler = LocalUriHandler.current
-
-    // Regular expression to match URLs
-    val urlRegex = """(?:https?://)[^\s]+""".toRegex()
-
-    // Find all URLs in the text
-    val urlRanges = urlRegex.findAll(text)
-
-    // Build annotated string with clickable links
-    val annotatedString = buildAnnotatedString {
-        var lastIndex = 0
-
-        append(text)
-
-        // Add URL annotations and styling
-        urlRanges.forEach { matchResult ->
-            val start = matchResult.range.first
-            val end = matchResult.range.last + 1
-            val url = matchResult.value
-
-            // Add URL annotation
-            addStringAnnotation(
-                tag = "URL",
-                annotation = url,
-                start = start,
-                end = end
-            )
-
-            // Add URL styling
-            addStyle(
-                style = SpanStyle(
-                    color = Color(0xFFA459D6),
-                    //color = MaterialTheme.colorScheme.primary,
-                    textDecoration = TextDecoration.Underline
-                ),
-                start = start,
-                end = end
-            )
-        }
-    }
-
-    // Create clickable text
-    ClickableText(
-        text = annotatedString,
-        style = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface
-        ),
-        modifier = modifier,
-        onClick = { offset ->
-            // Find which URL was clicked (if any)
-            annotatedString.getStringAnnotations(
-                tag = "URL",
-                start = offset,
-                end = offset
-            ).firstOrNull()?.let { annotation ->
-                // Open URL in browser
-                uriHandler.openUri(annotation.item)
-            }
-        }
-    )
-}
-
-// You can replace the SimpleMarkdownText in your MessagesScreen with this:
-@Composable
-fun EnhancedMarkdownText(
-    markdown: String,
-    modifier: Modifier = Modifier
-) {
-    // First handle markdown
-    val text = buildAnnotatedString {
-        // Bold text
-        val boldPattern = """(\*\*|__)(.*?)\1""".toRegex()
-        var lastIndex = 0
-
-        boldPattern.findAll(markdown).forEach { match ->
-            // Add text before the bold pattern
-            append(markdown.substring(lastIndex, match.range.first))
-
-            // Add the bold text
-            withStyle(SpanStyle( fontWeight = FontWeight.Bold)) {
-                append(match.groupValues[2])
-            }
-
-            lastIndex = match.range.last + 1
-        }
-
-        // Add remaining text
-        if (lastIndex < markdown.length) {
-            append(markdown.substring(lastIndex))
-        }
-    }
-
-    // Then handle clickable links
-    ClickableLinksText(
-        text = text.toString(),
         modifier = modifier
     )
 }
@@ -1419,4 +1316,179 @@ fun VideoEmbed(
             )
         }
     }
+}
+
+@Composable
+fun ClickableLinksText(
+    annotatedText: AnnotatedString,
+    modifier: Modifier = Modifier
+) {
+    val uriHandler = LocalUriHandler.current
+    val urlRegex = """(?:https?://)[^\s]+""".toRegex()
+    val urlRanges = urlRegex.findAll(annotatedText.text)
+
+    val finalAnnotatedString = buildAnnotatedString {
+        // Append the existing annotated string with all its spans
+        append(annotatedText)
+
+        // Add URL annotations and styling
+        urlRanges.forEach { matchResult ->
+            val start = matchResult.range.first
+            val end = matchResult.range.last + 1
+            val url = matchResult.value
+
+            addStringAnnotation(
+                tag = "URL",
+                annotation = url,
+                start = start,
+                end = end
+            )
+
+            addStyle(
+                style = SpanStyle(
+                    color = Color(0xFFA459D6),
+                    textDecoration = TextDecoration.Underline
+                ),
+                start = start,
+                end = end
+            )
+        }
+    }
+
+    ClickableText(
+        text = finalAnnotatedString,
+        style = MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface
+        ),
+        modifier = modifier,
+        onClick = { offset ->
+            finalAnnotatedString.getStringAnnotations(
+                tag = "URL",
+                start = offset,
+                end = offset
+            ).firstOrNull()?.let { annotation ->
+                uriHandler.openUri(annotation.item)
+            }
+        }
+    )
+}
+
+@Composable
+fun EnhancedMarkdownText(
+    markdown: String,
+    modifier: Modifier = Modifier
+) {
+    // Keep track of which spoilers have been revealed
+    var revealedSpoilers by remember { mutableStateOf(mutableSetOf<Int>()) }
+
+    // Build annotated string to handle both bold and spoiler formatting
+    val annotatedText = buildAnnotatedString {
+        var currentIndex = 0
+        val spoilerPattern = """(\|\|)(.*?)(\|\|)""".toRegex()
+        val boldPattern = """(\*\*|__)(.*?)\1""".toRegex()
+
+        // Find both spoilers and bold text
+        val allMatches = (spoilerPattern.findAll(markdown) + boldPattern.findAll(markdown))
+            .sortedBy { it.range.first }
+
+        allMatches.forEach { match ->
+            // Add text before the pattern
+            append(markdown.substring(currentIndex, match.range.first))
+
+            // Handle spoiler text (||text||)
+            if (match.value.startsWith("||")) {
+                val spoilerText = match.groupValues[2]
+                val spoilerIndex = match.range.first
+
+                // Add a custom string annotation for spoiler
+                pushStringAnnotation("spoiler", spoilerIndex.toString())
+
+                withStyle(SpanStyle(
+                    background = if (revealedSpoilers.contains(spoilerIndex)) {
+                        Color.Transparent
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
+                    color = MaterialTheme.colorScheme.primary
+                )) {
+                    append(spoilerText)
+                }
+
+                pop() // Pop the string annotation
+            }
+            // Handle bold text (**text** or __text__)
+            else {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(match.groupValues[2])
+                }
+            }
+
+            currentIndex = match.range.last + 1
+        }
+
+        // Add remaining text
+        if (currentIndex < markdown.length) {
+            append(markdown.substring(currentIndex))
+        }
+    }
+
+    val uriHandler = LocalUriHandler.current
+    val urlRegex = """(?:https?://)[^\s]+""".toRegex()
+    val urlRanges = urlRegex.findAll(annotatedText.text)
+
+    val finalAnnotatedString = buildAnnotatedString {
+        // Append the existing annotated string with all its spans
+        append(annotatedText)
+
+        // Add URL annotations and styling
+        urlRanges.forEach { matchResult ->
+            val start = matchResult.range.first
+            val end = matchResult.range.last + 1
+            val url = matchResult.value
+
+            addStringAnnotation(
+                tag = "URL",
+                annotation = url,
+                start = start,
+                end = end
+            )
+
+            addStyle(
+                style = SpanStyle(
+                    color = Color(0xFFA459D6),
+                    textDecoration = TextDecoration.Underline
+                ),
+                start = start,
+                end = end
+            )
+        }
+    }
+
+    ClickableText(
+        text = finalAnnotatedString,
+        style = MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface
+        ),
+        modifier = modifier,
+        onClick = { offset ->
+            // Check for spoiler clicks
+            finalAnnotatedString.getStringAnnotations(
+                tag = "spoiler",
+                start = offset,
+                end = offset
+            ).firstOrNull()?.let { annotation ->
+                // Reveal the spoiler by adding its index to the revealed set
+                revealedSpoilers = (revealedSpoilers + annotation.item.toInt()).toMutableSet()
+            }
+
+            // Check for URL clicks
+            finalAnnotatedString.getStringAnnotations(
+                tag = "URL",
+                start = offset,
+                end = offset
+            ).firstOrNull()?.let { annotation ->
+                uriHandler.openUri(annotation.item)
+            }
+        }
+    )
 }
