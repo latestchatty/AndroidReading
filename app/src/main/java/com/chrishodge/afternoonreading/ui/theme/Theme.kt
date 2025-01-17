@@ -31,11 +31,12 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun AfternoonReadingTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    forceDarkMode: Boolean = false,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = if (forceDarkMode || darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

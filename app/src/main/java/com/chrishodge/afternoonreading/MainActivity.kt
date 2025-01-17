@@ -44,6 +44,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
@@ -60,12 +61,16 @@ class MainActivity : ComponentActivity() {
             this,
             MainViewModelFactory(preferencesManager)
         )[MainViewModel::class.java]
+
         setContent {
-            AfternoonReadingTheme {
-                // A surface container using the 'background' color from the theme
+            val forceDarkMode by viewModel.forceDarkMode.collectAsState()
+
+            AfternoonReadingTheme(
+                forceDarkMode = forceDarkMode
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    color = androidx.compose.material.MaterialTheme.colors.background
                 ) {
                     MainScreen(viewModel)
                 }
@@ -73,6 +78,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 @Composable
 fun TopBar() {

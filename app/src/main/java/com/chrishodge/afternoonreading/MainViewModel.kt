@@ -12,10 +12,9 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
-    init {
-        // Load hidden IDs when ViewModel is created
-        // refreshHiddenIds()
-    }
+
+    private val _forceDarkMode = MutableStateFlow(preferencesManager.getBoolean(PreferencesManager.FORCE_DARK_MODE))
+    val forceDarkMode = _forceDarkMode.asStateFlow()
 
     private val _threadsData = MutableStateFlow<List<Thread>>(emptyList())
     val threadsData = _threadsData.asStateFlow()
@@ -34,6 +33,11 @@ class MainViewModel(
 
     private val _nickname = MutableStateFlow(preferencesManager.getString("nickname"))
     val nickname = _nickname.asStateFlow()
+
+    fun updateForceDarkMode(enabled: Boolean) {
+        _forceDarkMode.value = enabled
+        preferencesManager.saveBoolean(PreferencesManager.FORCE_DARK_MODE, enabled)
+    }
 
     fun updateNickname(newNickname: String) {
         _nickname.value = newNickname
@@ -145,6 +149,7 @@ class MainViewModel(
         _forumId.value = formState.forumId
         _userToken.value = formState.userToken
         _nickname.value = formState.nickname
+        updateForceDarkMode(formState.forceDarkMode)
         messageViewModel.value?.let { viewModel ->
             viewModel.setGuildId(formState.guildId)
             viewModel.setForumId(formState.forumId)

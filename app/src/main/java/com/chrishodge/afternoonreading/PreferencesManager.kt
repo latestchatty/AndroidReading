@@ -3,6 +3,10 @@ package com.chrishodge.afternoonreading
 import android.content.Context
 
 class PreferencesManager(context: Context) {
+    companion object {
+        const val FORCE_DARK_MODE = "force_dark_mode"
+    }
+
     private val sharedPreferences = context.getSharedPreferences(
         "app_preferences",
         Context.MODE_PRIVATE

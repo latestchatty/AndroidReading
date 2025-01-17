@@ -4,17 +4,20 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -30,30 +33,30 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// FormState.kt
 data class FormState(
     val guildId: String = "1250110786676981872",
     val forumId: String = "1321902595287285832",
     var nickname: String = "",
     var hiddenIds: Set<String> = emptySet(),
     var userToken: String = "",
+    var forceDarkMode: Boolean = false,
     val isValid: Boolean = false
 )
 
-// FormViewModel.kt
 class FormViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
     private val _hiddenIds = MutableStateFlow(preferencesManager.getStringSet("hidden_ids"))
     val hiddenIds = _hiddenIds.asStateFlow()
+
     private val _formState = MutableStateFlow(FormState(
         guildId = preferencesManager.getString("guild_id"),
         forumId = preferencesManager.getString("forum_id"),
         nickname = preferencesManager.getString("nickname"),
         hiddenIds = _hiddenIds.value,
         userToken = preferencesManager.getString("user_token"),
+        forceDarkMode = preferencesManager.getBoolean(PreferencesManager.FORCE_DARK_MODE),
     ))
     val formState = _formState.asStateFlow()
 
-    // Function to update form state from MainViewModel
     fun refreshFromMainViewModel(mainViewModel: MainViewModel) {
         viewModelScope.launch {
             mainViewModel.userToken.collect { token ->
@@ -62,6 +65,15 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
                 }
             }
         }
+    }
+
+    fun updateForceDarkMode(enabled: Boolean) {
+        _formState.update { currentState ->
+            currentState.copy(
+                forceDarkMode = enabled
+            )
+        }
+        preferencesManager.saveBoolean(PreferencesManager.FORCE_DARK_MODE, enabled)
     }
 
     fun updateGuildId(guildId: String) {
@@ -119,7 +131,6 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
         _formState.update { it.copy(hiddenIds = newHiddenIds) }
     }
 
-    // Optional: Add a function to be called when the form becomes active
     fun refresh() {
         updateHiddenIds()
     }
@@ -142,7 +153,6 @@ class FormViewModel(private val preferencesManager: PreferencesManager) : ViewMo
     }
 }
 
-// SharedForm.kt
 @Composable
 fun SharedForm(
     modifier: Modifier = Modifier,
@@ -166,7 +176,6 @@ fun SharedForm(
         viewModel.refreshFromMainViewModel(mainViewModel)
     }
 
-    // Update form when token changes in MainViewModel
     LaunchedEffect(userToken) {
         if (userToken != formState.userToken) {
             viewModel.updateUserToken(userToken)
@@ -214,6 +223,26 @@ fun SharedForm(
             singleLine = true
         )
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Force Dark Mode",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Switch(
+                checked = formState.forceDarkMode,
+                onCheckedChange = { checked ->
+                    viewModel.updateForceDarkMode(checked)
+                }
+            )
+        }
+
         Button(
             onClick = {
                 onSubmit(formState)
@@ -248,7 +277,6 @@ fun SharedForm(
     }
 }
 
-// Add a Factory for FormViewModel
 class FormViewModelFactory(
     private val preferencesManager: PreferencesManager
 ) : ViewModelProvider.Factory {
