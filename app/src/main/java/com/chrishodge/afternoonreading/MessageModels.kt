@@ -43,7 +43,8 @@ data class Message(
     @SerialName("referenced_message")
     val referencedMessage: Message? = null,
 
-    var cleanContent: String? = ""
+    var cleanContent: String? = "",
+    var mentionsContent: String? = ""
 )
 
 @Serializable
@@ -442,6 +443,8 @@ class MessageViewModel : ViewModel() {
                             "@${mention.globalName ?: mention.username}"
                         )
                     }
+                    // Save the mentioned verison of this content for use in detail views
+                    message.mentionsContent = cleanedContent
                     // Replace spoiler tags with underscores
                     cleanedContent = cleanedContent.replace(
                         Regex("\\|\\|([^\\|\\|]*)\\|\\|"),

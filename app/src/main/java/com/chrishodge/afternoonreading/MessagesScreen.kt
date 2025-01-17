@@ -264,7 +264,7 @@ fun MessagesScreen(
 
                     // Markdown content
                     EnhancedMarkdownText(
-                        markdown = selectedMessage?.content ?: "",
+                        markdown = selectedMessage?.mentionsContent ?: "",
                         modifier = Modifier.fillMaxWidth()
                     )
 
