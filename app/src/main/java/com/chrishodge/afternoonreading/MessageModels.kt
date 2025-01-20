@@ -174,7 +174,7 @@ data class MessageReference(
     @SerialName("message_id")
     val messageId: String,
     @SerialName("guild_id")
-    val guildId: String
+    val guildId: String? = null
 )
 
 @Serializable
