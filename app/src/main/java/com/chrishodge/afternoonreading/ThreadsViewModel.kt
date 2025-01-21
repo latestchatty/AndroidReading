@@ -86,7 +86,7 @@ class ThreadsViewModel(
                         try {
                             println("Processing single thread from queue: $threadId")
                             loadThreadInternal(threadId)
-                            delay(500) // 500ms delay between requests
+                            delay(55) // 55ms delay between requests
                         } finally {
                             isProcessing = false
                         }
