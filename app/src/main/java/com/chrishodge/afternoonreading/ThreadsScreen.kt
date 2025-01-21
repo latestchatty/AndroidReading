@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -120,7 +118,7 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, mod
                     }
                 }
                 is ThreadsUiState.Success -> {
-                    ThreadsList(threads = state.threads, mainViewModel)
+                    ThreadsList(threads = state.threads, mainViewModel, viewModel = viewModel)
                     PullRefreshIndicator(refreshing, refreshingState, Modifier.align(Alignment.TopCenter))
                 }
                 is ThreadsUiState.Error -> {
@@ -140,8 +138,11 @@ fun ThreadsScreen(viewModel: ThreadsViewModel, mainViewModel: MainViewModel, mod
 }
 
 @Composable
-fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
-    // Get the current hidden IDs
+fun ThreadsList(
+    threads: List<Thread>,
+    mainViewModel: MainViewModel,
+    viewModel: ThreadsViewModel // Add ViewModel parameter
+) {
     val hiddenIds by mainViewModel.hiddenIds.collectAsState(initial = emptySet())
 
     LaunchedEffect(Unit) {
@@ -153,9 +154,12 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Filter out threads with hidden IDs
         items(threads.filter { thread -> !hiddenIds.contains(thread.id) }) { thread ->
-            ThreadCard(thread = thread, mainViewModel)
+            ThreadCard(
+                thread = thread,
+                mainViewModel = mainViewModel,
+                viewModel = viewModel
+            )
         }
     }
 }
@@ -163,14 +167,25 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
 
 
 @Composable
-fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
+fun ThreadCard(
+    thread: Thread,
+    mainViewModel: MainViewModel,
+    viewModel: ThreadsViewModel
+) {
     val dark = isSystemInDarkTheme()
     val forceDarkMode by mainViewModel.forceDarkMode.collectAsState()
     val nickname by mainViewModel.nickname.collectAsState("")
+
+    // Load thread data when card becomes visible
+    LaunchedEffect(thread.id) {
+        // Queue this thread for loading when it appears
+        viewModel.queueThreadLoad(thread.id)
+    }
+
     Card(
         onClick = {
             mainViewModel.setChannel(thread = thread)
-            println("$thread.id}")
+            println("Thread ${thread.id} clicked")
         },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.25f),
@@ -184,18 +199,16 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 .padding(horizontal = 8.dp)
                 .fillMaxWidth()
         ) {
-            Row( modifier = Modifier.padding(vertical = 4.dp)) {
+            Row(modifier = Modifier.padding(vertical = 4.dp)) {
                 thread.username?.let { username ->
                     thread.author?.let { author ->
                         Text(
                             text = author,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = if (nickname.isNotBlank() && nickname.lowercase() == username.lowercase()) colorResource(
-                                id = R.color.blue
-                            ) else colorResource(
-                                id = R.color.orange
-                            ),
+                            color = if (nickname.isNotBlank() && nickname.lowercase() == username.lowercase())
+                                colorResource(id = R.color.blue)
+                            else colorResource(id = R.color.orange),
                             textAlign = TextAlign.Left,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -220,7 +233,7 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                         )
                     }
                 }
-                Spacer(Modifier.weight(1f).fillMaxHeight())
+                Spacer(Modifier.weight(1f))
                 Text(
                     text = "${thread.threadMetadata.createTimestamp?.let { formatDate(it) }} (${thread.messageCount})",
                     style = MaterialTheme.typography.bodyMedium,
@@ -236,8 +249,6 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-
-            Spacer(modifier = Modifier.height(2.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -270,24 +281,9 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                 }
                 MinimalDropdownMenu(
                     thread = thread,
-                    mainViewModel = mainViewModel)
+                    mainViewModel = mainViewModel
+                )
             }
-
-            /*
-            if (!thread.appliedTags.isNullOrEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    thread.appliedTags.forEach { tag ->
-                        AssistChip(
-                            onClick = { },
-                            label = { Text(tag) }
-                        )
-                    }
-                }
-            }
-            */
         }
     }
 }
