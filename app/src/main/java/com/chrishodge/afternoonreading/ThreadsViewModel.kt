@@ -25,6 +25,27 @@ class ThreadsViewModel(
         loadThreads()
     }
 
+    private fun loadThread(threadId: String) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = ThreadsUiState.Loading
+                println("Attempting to fetch from URL: $apiUrl")
+                // First get threads and show them immediately
+                try {
+                    val messageResponse = threadsClient.getMessage(
+                        url = "https://canary.discord.com/api/v9/channels/${threadId}/messages/${threadId}"
+                    )
+                    // Update the thread with author info
+                } catch (e: Exception) {
+                    println("Error fetching message for thread ${threadId}: ${e.message}")
+                }
+            } catch (e: Exception) {
+                println("Error details: ${e.message}")
+                _uiState.value = ThreadsUiState.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
     private fun loadThreads() {
         viewModelScope.launch {
             try {
