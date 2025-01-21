@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
@@ -253,6 +254,7 @@ fun MessagesScreen(
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
+
 
                     // Markdown title or name
                     if (selectedMessage?.id == channelId) {
@@ -872,36 +874,34 @@ private fun GroupedReactions(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Standard emojis
+        // Standard emojis with horizontal scrolling
         if (standardEmojis.isNotEmpty()) {
-            Row(
+            LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp)
             ) {
-                standardEmojis.forEach { reaction ->
+                items(standardEmojis) { reaction ->
                     ReactionChip(
                         emoji = reaction.emoji.name,
-                        count = reaction.count,
-                        modifier = Modifier.padding(end = 8.dp)
+                        count = reaction.count
                     )
                 }
             }
         }
 
-        // Custom tag emojis
+        // Custom tag emojis with horizontal scrolling
         if (customEmojis.isNotEmpty()) {
-            Row(
+            LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                contentPadding = PaddingValues(horizontal = 0.dp)
             ) {
-                customEmojis.forEach { reaction ->
+                items(customEmojis) { reaction ->
                     reaction.emoji.id?.let { emojiId ->
                         TagReactionChip(
                             emojiId = emojiId,
-                            count = reaction.count,
-                            modifier = Modifier.padding(end = 8.dp)
+                            count = reaction.count
                         )
                     }
                 }
