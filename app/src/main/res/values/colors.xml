@@ -13,5 +13,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#FFF09A38</color>
     <color name="blue">#2196F3</color>
-    <color name="redacted_orange">#FF3B2A16</color>
+    <color name="redacted_orange_dark">#FF382B18</color>
+    <color name="redacted_orange_light">#FFEEE0CB</color>
+    <color name="redacted_gray_dark">#FF3B3B3B</color>
+    <color name="redacted_gray_light">#FFC8C8C9</color>
 </resources>

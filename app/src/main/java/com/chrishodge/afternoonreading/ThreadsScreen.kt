@@ -3,6 +3,7 @@ package com.chrishodge.afternoonreading
 import android.text.format.DateUtils
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -163,6 +164,8 @@ fun ThreadsList(threads: List<Thread>, mainViewModel: MainViewModel) {
 
 @Composable
 fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
+    val dark = isSystemInDarkTheme()
+    val forceDarkMode by mainViewModel.forceDarkMode.collectAsState()
     val nickname by mainViewModel.nickname.collectAsState("")
     Card(
         onClick = {
@@ -200,12 +203,18 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                     }
                 }
                 if (thread.author?.isBlank() == true) {
-                    Box(modifier = Modifier.background(colorResource(id = R.color.redacted_orange))) {
+                    Box(modifier = Modifier
+                        .background(
+                            if (dark || forceDarkMode) colorResource(id = R.color.redacted_orange_dark)
+                            else colorResource(id = R.color.redacted_orange_light)
+                        )
+                    ) {
                         Text(
                             text = "RedactedAuthor",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(id = R.color.redacted_orange),
+                            color = if (dark || forceDarkMode) colorResource(id = R.color.redacted_orange_dark)
+                            else colorResource(id = R.color.redacted_orange_light),
                             textAlign = TextAlign.Left,
                             maxLines = 1
                         )
@@ -247,12 +256,16 @@ fun ThreadCard(thread: Thread, mainViewModel: MainViewModel) {
                     Text(
                         modifier = Modifier
                             .weight(1f)
-                            .background(Color.DarkGray),
+                            .background(
+                                if (dark || forceDarkMode) colorResource(id = R.color.redacted_gray_dark)
+                                else colorResource(id = R.color.redacted_gray_light)
+                            ),
                         text = "Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries for previewing layouts and visual mockups.",
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        color = Color.DarkGray
+                        color = if (dark || forceDarkMode) colorResource(id = R.color.redacted_gray_dark)
+                        else colorResource(id = R.color.redacted_gray_light)
                     )
                 }
                 MinimalDropdownMenu(
