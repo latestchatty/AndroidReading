@@ -506,6 +506,7 @@ private fun ThreadedMessageList(
     }
 }
 
+// TODO: Make this customizable
 val postTagIds = mapOf(
     "daw" to "1331058613480853664",
     "lol" to "1331060088143745114",
@@ -518,6 +519,7 @@ val postTagIds = mapOf(
     "wtf" to "1331058619491291259"
 )
 
+// TODO: Make this customizable
 val postTagColors = mapOf(
     "1331058613480853664" to Color(0xFFE692EE),
     "1331060088143745114" to Color(0xFFE9973F),
@@ -529,7 +531,6 @@ val postTagColors = mapOf(
     "1320755236851286068" to Color(0xFF5EAB32),
     "1331058619491291259" to Color(0xFFC0356B )
 )
-
 
 // Messages (including OP)
 @Composable
