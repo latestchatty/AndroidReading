@@ -132,9 +132,9 @@ data class Thumbnail(
     val proxyUrl: String,
     val width: Int,
     val height: Int,
-    val placeholder: String,
+    val placeholder: String? = null,
     @SerialName("placeholder_version")
-    val placeholderVersion: Int,
+    val placeholderVersion: Int? = null,
     val flags: Int
 )
 

@@ -3,6 +3,8 @@ package com.chrishodge.afternoonreading
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.cio.endpoint
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -17,6 +19,21 @@ class ThreadsClient(private val authToken: String) {
                 ignoreUnknownKeys = true
                 coerceInputValues = true
             })
+        }
+
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30_000  // 30 seconds for the entire request
+            connectTimeoutMillis = 15_000  // 15 seconds to establish a connection
+            socketTimeoutMillis = 15_000   // 15 seconds between data packets
+        }
+
+        engine {
+            requestTimeout = 30_000 // 30 seconds
+            endpoint {
+                connectTimeout = 15_000
+                socketTimeout = 15_000
+                keepAliveTime = 15_000
+            }
         }
     }
 
