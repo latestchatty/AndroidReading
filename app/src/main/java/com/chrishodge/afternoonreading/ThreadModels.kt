@@ -26,11 +26,11 @@ data class Thread(
     val parentId: String,
     @SerialName("rate_limit_per_user")
     val rateLimitPerUser: Int,
-    val bitrate: Int,
+    val bitrate: Int? = null,
     @SerialName("user_limit")
-    val userLimit: Int,
+    val userLimit: Int? = null,
     @SerialName("rtc_region")
-    val rtcRegion: String?,
+    val rtcRegion: String? = null,
     @SerialName("owner_id")
     val ownerId: String,
     @SerialName("thread_metadata")
